@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
+  password     String
+  phone_number String
+}
+
+model Teacher {
+  id    String  @id @default(uuid())
+  name  String
+  class String
+
+  Borrows Borrow[]
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  image       String?
+  quantity    Int
+  available   Int
+
+  Borrows Borrow[]
+}
+
+model Borrow {
+  id                 String     @id @default(uuid())
+
+  teacher_id         String
+  item_id            String
+
+  teacher            Teacher   @relation(fields: [teacher_id], references: [id])
+  item               Item      @relation(fields: [item_id], references: [id])
+
+  quantity           Int
+  duration           DateTime
+  return_date        DateTime?
+  actual_return_time DateTime?
+  notes              String?
+  status             String
+}
