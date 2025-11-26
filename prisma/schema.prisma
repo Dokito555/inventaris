@@ -1,48 +1,61 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Admin {
-  id           String  @id @default(uuid())
-  name         String
-  email        String  @unique
-  password     String
-  phone_number String
+  id          String     @id @default(uuid())
+  name        String
+  email       String     @unique
+  password    String
+  phoneNumber String
+
+  sessions    Session[]
 }
 
 model Teacher {
-  id    String  @id @default(uuid())
-  name  String
-  class String
+  id      String    @id @default(uuid())
+  name    String
+  class   String
 
   Borrows Borrow[]
 }
 
+model Session {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  user      Admin    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+
 model Item {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   description String?
   image       String?
   quantity    Int
   available   Int
 
-  Borrows Borrow[]
+  Borrows     Borrow[]
 }
 
 model Borrow {
   id                 String     @id @default(uuid())
 
-  teacher_id         String
-  item_id            String
+  teacherId          String
+  itemId             String
 
-  teacher            Teacher   @relation(fields: [teacher_id], references: [id])
-  item               Item      @relation(fields: [item_id], references: [id])
+  teacher            Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  item               Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   quantity           Int
   duration           DateTime
