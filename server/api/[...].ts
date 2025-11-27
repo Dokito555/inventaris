@@ -2,9 +2,11 @@ import { eventHandler, getRequestURL, getRequestHeaders, readRawBody,  } from "h
 import { Elysia } from 'elysia'
 import { authController } from "./controllers/auth.controller";
 import { errorResponse } from "./utils/response";
+import { telegramController } from "./controllers/telegram.controller";
 
-const app = new Elysia({ prefix: '/api '})
+const app = new Elysia({ prefix: '/api'})
     .use(authController)
+    .use(telegramController)
     .onError(({code, error, set}) => {
         if (code === 'VALIDATION') {
             return errorResponse(

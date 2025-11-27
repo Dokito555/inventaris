@@ -12,10 +12,12 @@
   "dependencies": {
     "@elysiajs/eden": "^1.4.5",
     "@prisma/adapter-pg": "^7.0.1",
-    "@prisma/client": "^7.0.1",
+    "@prisma/client": "6",
     "@prisma/config": "^7.0.1",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "elysia": "^1.4.16",
+    "node-telegram-bot-api": "^0.66.0",
     "nuxt": "^4.2.1",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3"
@@ -23,7 +25,8 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^24.10.1",
+    "@types/node-telegram-bot-api": "^0.64.13",
     "nuxt-elysia": "^0.2.0",
-    "prisma": "^7.0.1"
+    "prisma": "6"
   }
 }
