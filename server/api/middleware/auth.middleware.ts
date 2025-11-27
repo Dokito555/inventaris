@@ -6,12 +6,13 @@ export default defineEventHandler(async (event) => {
     if (
         path.startsWith('/api/auth/register') ||
         path.startsWith('/api/auth/login') ||
-        !path.startsWith('/api/')
+        path.startsWith('/api/telegram/webhook') ||
+        !path.startsWith('/api/') 
     ) {
         return
     }
 
-    const token = getCookie(event, 'auth_token')
+    const token = getCookie(event, 'session')
 
     if (!token) {
         throw createError({
@@ -30,4 +31,6 @@ export default defineEventHandler(async (event) => {
     }
 
     event.context.user = session.user
+    event.node.req.headers['x-user-id'] = session.user.id
+    event.node.req.headers['x-user-email'] = session.user.email
 })

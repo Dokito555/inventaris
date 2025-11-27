@@ -14,14 +14,17 @@ model Admin {
   password    String
   phoneNumber String      @unique
   teleId      String      @unique
+  createdAt   DateTime    @default(now())
 
   sessions    Session[]
 }
 
 model Teacher {
-  id      String    @id @default(uuid())
-  name    String
-  class   String
+  id        String    @id @default(uuid())
+  name      String
+  class     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 
   Borrows Borrow[]
 }
@@ -32,7 +35,7 @@ model Session {
   token     String    @unique
   expiresAt DateTime
   createdAt DateTime  @default(now())
-  user      Admin    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      Admin     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
@@ -45,24 +48,28 @@ model Item {
   description String?
   image       String?
   quantity    Int
-  available   Int
+  available   Boolean
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
 
   Borrows     Borrow[]
 }
 
 model Borrow {
-  id                 String     @id @default(uuid())
+  id                  String    @id @default(uuid())
 
-  teacherId          String
-  itemId             String
+  teacherId           String
+  itemId              String
 
-  teacher            Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  item               Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  teacher             Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  item                Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-  quantity           Int
-  duration           DateTime
-  return_date        DateTime?
-  actual_return_time DateTime?
-  notes              String?
-  status             String
+  quantity            Int
+  duration            DateTime
+  return_date         DateTime?
+  actual_return_time  DateTime?
+  notes               String?
+  status              String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now())
 }
