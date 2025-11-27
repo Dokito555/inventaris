@@ -17,7 +17,8 @@ export const telegramController = (app: Elysia) => {
                 console.log('webhook error: ', error)
                 return errorResponse(
                     'webhook processing failed',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -45,7 +46,8 @@ export const telegramController = (app: Elysia) => {
                 console.log('link error: ', error)
                 return errorResponse(
                     'linking failed',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -71,7 +73,8 @@ export const telegramController = (app: Elysia) => {
                 console.log('test message error: ', error)
                 return errorResponse(
                     'test message failed',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -94,7 +97,8 @@ export const telegramController = (app: Elysia) => {
                 console.log('webhook setup error: ', error)
                 return errorResponse(
                     'webhook setup failed',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {

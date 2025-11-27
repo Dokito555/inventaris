@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia'
 import { errorResponse, successResponse } from '../utils/response';
 import { createItem, deleteItem, getAllItems, getItemByID, updateItem } from '../services/item.service';
 import { createItemRequest, itemIdRequest, itemPagination, updateItemRequest } from '../validators/item.validator';
+import { error } from 'console';
 
 export const itemController = (app: Elysia) => {
     return app.group('/items', (app) => 
@@ -13,7 +14,8 @@ export const itemController = (app: Elysia) => {
                 if (!user) {
                     return errorResponse(
                         'unauthorized',
-                        set.status = 401
+                        set.status = 401,
+                        error
                     )
                 }
 
@@ -29,7 +31,8 @@ export const itemController = (app: Elysia) => {
                 console.error('create item error: ', error)
                 return errorResponse(
                     'failed to create item',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -53,7 +56,8 @@ export const itemController = (app: Elysia) => {
                 console.error('failed to get all items')
                 return errorResponse(
                     'failed to get all items',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             } 
         }, {
@@ -66,7 +70,7 @@ export const itemController = (app: Elysia) => {
                 if (!user) {
                     return errorResponse(
                         'unauthorized',
-                        set.status = 401
+                        set.status = 401,
                     )
                 }
 
@@ -84,7 +88,8 @@ export const itemController = (app: Elysia) => {
                 console.error('get item error: ', error)
                 return errorResponse(
                     'failed to get item',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -97,7 +102,7 @@ export const itemController = (app: Elysia) => {
                 if (!user) {
                     return errorResponse(
                         'unauthorized',
-                        set.status = 401
+                        set.status = 401,
                     )
                 }
 
@@ -115,7 +120,7 @@ export const itemController = (app: Elysia) => {
                 if (!item) {
                     return errorResponse(
                         'item not found or unauthorized',
-                        set.status = 404
+                        set.status = 404,
                     )
                 }
 
@@ -124,7 +129,8 @@ export const itemController = (app: Elysia) => {
                 console.error('update item error: ', error)
                 return errorResponse(
                     'failed to update item',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -156,7 +162,8 @@ export const itemController = (app: Elysia) => {
                 console.error('delete item error: ', error)
                 return errorResponse(
                     'failed to delete item',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {

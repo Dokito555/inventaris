@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia'
 import { errorResponse, successResponse } from '../utils/response'
 import { addTeacher, deleteTeacher, getAllTeacher, getTeacherById, updateTeacher } from '../services/teacher.service'
 import { addTeacherRequest, teacherIdRequest, teacherPagination, teacherUpdateREquest as teacherUpdateRequest } from '../validators/teacher.validator'
+import { error } from 'console'
 
 export const teacherController = (app: Elysia) => {
     return app.group('/teachers', (app) => 
@@ -27,7 +28,8 @@ export const teacherController = (app: Elysia) => {
                 console.error('failed to add teacher: ', error)
                 return errorResponse(
                     'failed to add teacher',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -51,7 +53,8 @@ export const teacherController = (app: Elysia) => {
                 console.error("failed to get all teachers: ", error)
                 return errorResponse(
                     'failed to get all teachers',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -73,7 +76,7 @@ export const teacherController = (app: Elysia) => {
                 if (!teacher) {
                     return errorResponse(
                         'teacher not found',
-                        set.status = 404
+                        set.status = 404,
                     )
                 }
 
@@ -82,7 +85,8 @@ export const teacherController = (app: Elysia) => {
                 console.error("failed to get teacher by id: ", error)
                 return errorResponse(
                     'failed to get teacher by id',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -114,7 +118,8 @@ export const teacherController = (app: Elysia) => {
                 return successResponse(teacher, 'teacher updated successfully')
             } catch (error) {
                 console.error('failed to update teacher: ', error)
-                set.status = 500
+                set.status = 500,
+                error
             }
         }, {
             params: teacherIdRequest,
@@ -144,7 +149,8 @@ export const teacherController = (app: Elysia) => {
                 console.error('delete teacher successfully: ', error)
                 return errorResponse(
                     'failed to delete teacher',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {

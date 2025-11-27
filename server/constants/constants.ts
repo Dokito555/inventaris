@@ -1,5 +1,5 @@
-enum Status {
-  LOANED,
+enum BorrowStatus {
+  BORROWED,
   PENDING,
   RETURNED,
   AVAILABLE,

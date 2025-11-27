@@ -5,8 +5,11 @@ import { errorResponse } from "./utils/response";
 import { telegramController } from "./controllers/telegram.controller";
 import { itemController } from "./controllers/item.controller";
 import { teacherController } from "./controllers/teacher.controller";
+import { authMiddleware } from "./middleware/auth.middleware";
+// import { authMiddleware } from "./middleware/auth.middleware";
 
 const app = new Elysia({ prefix: '/api'})
+    .use(authMiddleware)
     .use(authController)
     .use(telegramController)
     .use(itemController)
@@ -16,14 +19,15 @@ const app = new Elysia({ prefix: '/api'})
             return errorResponse(
                 'validation failed',
                 set.status = 400,
-                error.message
+                error
             )
         }
 
         if (code === 'NOT_FOUND') {
             return errorResponse(
                 'route not found', 
-                set.status = 404
+                set.status = 404,
+                error
             )
         }
 
@@ -32,6 +36,9 @@ const app = new Elysia({ prefix: '/api'})
             set.status = 500
         )
     })
+app.onRequest(({ request }) => {
+    console.log('Incoming cookies:', request.headers.get('cookie'))
+})
 
 export default eventHandler(async (event) => {
     const url = getRequestURL(event)

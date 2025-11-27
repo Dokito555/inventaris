@@ -3,6 +3,7 @@ import { register, login } from '../services/auth.service'
 import { errorResponse, successResponse } from '../utils/response'
 import { createSession, deleteSession } from '../services/session.service'
 import { loginRequest, registerRequest } from '../validators/auth.validator'
+import { error } from 'console'
 
 export const authController = (app: Elysia) => {
     return app.group('/auth', (app) => 
@@ -20,8 +21,9 @@ export const authController = (app: Elysia) => {
                 return successResponse(user)
             } catch(error) {
                 return errorResponse(
-                    'registration failed',
-                    set.status = 500
+                    error instanceof Error ? error.message : 'unexpected error',
+                    set.status = 500,
+                    error
                 )
             }
         }, {
@@ -34,7 +36,8 @@ export const authController = (app: Elysia) => {
                 if (!user) {
                     return errorResponse(
                         'invalid credentials',
-                        set.status = 401
+                        set.status = 401,
+                        error
                     )
                 }
 
@@ -50,13 +53,14 @@ export const authController = (app: Elysia) => {
             } catch(error) {
                 return errorResponse(
                     'login failed',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
         }, {
             body: loginRequest
         })
-        .post('/logout', async ({cookie: {session}, set}) => {
+        .delete('/logout', async ({cookie: {session}, set}) => {
             try {
                 const token = session.value as string || undefined
 
@@ -64,7 +68,8 @@ export const authController = (app: Elysia) => {
                     console.log("token undefined: %d", token)
                     return errorResponse(
                         'token is undefined',
-                        set.status = 401
+                        set.status = 401,
+                        error
                     )
                 }
 
@@ -78,9 +83,12 @@ export const authController = (app: Elysia) => {
             } catch(error) {
                 return errorResponse(
                     'logout failed',
-                    set.status = 500
+                    set.status = 500,
+                    error
                 )
             }
+        }, {
+            body: t.Any()
         })
     )
 }

@@ -1,0 +1,1 @@
+# detail + edit di halaman yg sama

@@ -44,17 +44,12 @@ export async function register(
 
     const hashedPassword = await hashPassword(password);
 
-    // set tele id to empty string so prisma can process it
-    // alternative?
-    const teleId = ""
-
     const user = await prisma.admin.create({
         data: {
             email,
             password: String(hashedPassword),
             phoneNumber,
             name,
-            teleId
         },
         select: {
             id: true,

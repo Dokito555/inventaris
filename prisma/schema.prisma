@@ -13,7 +13,7 @@ model Admin {
   email       String      @unique
   password    String
   phoneNumber String      @unique
-  teleId      String      @unique
+  teleId      String?      @unique
   createdAt   DateTime    @default(now())
 
   sessions    Session[]
@@ -65,7 +65,7 @@ model Borrow {
   item                Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   quantity            Int
-  duration            DateTime
+  borrowed_at         DateTime
   return_date         DateTime?
   actual_return_time  DateTime?
   notes               String?

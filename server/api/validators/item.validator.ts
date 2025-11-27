@@ -25,7 +25,7 @@ export const itemIdRequest = t.Object({
 })
 
 export const updateItemRequest = t.Object({
-     name: t.String({
+    name: t.String({
         minLength: 1,
         error: 'invalid name'
     }),
