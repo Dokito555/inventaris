@@ -95,7 +95,7 @@
 }
 
 /* Header & Body */
-.table-header-row,
+.dashboard-page .table-header-row,
 .table-row {
     display: grid;
     /* 6 kolom fleksibel */

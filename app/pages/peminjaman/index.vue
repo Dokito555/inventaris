@@ -1,4 +1,5 @@
 <template>
+<div class="borrow-page">
   <!-- {{-- Search and Add Button --}} -->
     <div class="top-actions">
         <div class="search-box">
@@ -221,6 +222,7 @@
                 </svg>
             </button>
         </div>
+    </div>
     </div>
 </template>
 
