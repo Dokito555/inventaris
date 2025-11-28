@@ -17,11 +17,11 @@ const route = useRoute()
 // Mapping otomatis path → title
 const titles = {
   '/dashboard': 'Dashboard',
-  '/list-peminjaman': 'List Peminjaman',
-  '/daftar-barang': 'Daftar Barang',
-  '/crud-barang': 'CRUD Barang',
-  '/riwayat': 'Riwayat Peminjaman',
-  '/guru': 'List Guru'
+  '/peminjaman': 'List Peminjaman',
+  '/barang': 'Daftar Barang',
+  '/barang/create': 'CRUD Barang',
+  '/peminjaman/history': 'Riwayat Peminjaman',
+  '/kelas': 'List Guru'
 }
 
 const pageTitle = titles[route.path] || 'Dashboard'

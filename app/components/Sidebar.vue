@@ -14,24 +14,24 @@
         <NuxtLink to="/dashboard">Dashboard</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/list-peminjaman') }">
-        <NuxtLink to="/list-peminjaman">List Peminjaman Barang</NuxtLink>
+      <li :class="{ active: isActive('/peminjaman') }">
+        <NuxtLink to="/peminjaman">List Peminjaman Barang</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/daftar-barang') }">
-        <NuxtLink to="/daftar-barang">Daftar Barang</NuxtLink>
+      <li :class="{ active: isActive('/barang') }">
+        <NuxtLink to="/barang">Daftar Barang</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/crud-barang') }">
-        <NuxtLink to="/crud-barang">CRUD Barang</NuxtLink>
+      <li :class="{ active: isActive('/barang/create') }">
+        <NuxtLink to="/barang/create">CRUD Barang</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/riwayat') }">
-        <NuxtLink to="/riwayat">Riwayat Peminjaman</NuxtLink>
+      <li :class="{ active: isActive('/peminjaman/history') }">
+        <NuxtLink to="/peminjaman/history">Riwayat Peminjaman</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/guru') }">
-        <NuxtLink to="/guru">List Guru</NuxtLink>
+      <li :class="{ active: isActive('/kelas') }">
+        <NuxtLink to="/kelas">List Guru</NuxtLink>
       </li>
 
     </ul>
