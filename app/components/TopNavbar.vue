@@ -24,7 +24,9 @@ const titles = {
   '/kelas': 'List Guru'
 }
 
-const pageTitle = titles[route.path] || 'Dashboard'
+const pageTitle = computed(() => {
+  return route.meta.title || 'Dashboard'
+})
 </script>
 
 <style scoped>

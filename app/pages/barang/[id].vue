@@ -4,3 +4,10 @@
     Halaman barang
   </div>
 </template>
+
+<script setup>
+definePageMeta({
+  layout: 'default',
+  title: 'Tambah Barang'
+})
+</script>

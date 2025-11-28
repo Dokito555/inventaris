@@ -121,7 +121,8 @@
 <script setup>
     definePageMeta({
         // middleware: ['auth'],
-        layout: 'default'
+        layout: 'default',
+        title: 'Dashboard'
     })
 </script>
 
