@@ -1,7 +1,7 @@
 export default defineNuxtRouteMiddleware((to) => {
-    const token = useCookie('token')
+    // const token = useCookie('token')
 
-    if (token.value) {
-        return navigateTo('/dashboard')
-    }
+    // if (token.value && to.path !== '/dashboard') {
+    //     return navigateTo('/dashboard')
+    // }
 })

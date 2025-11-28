@@ -1,4 +1,5 @@
 # redirect ke dashboard
+
 <script setup>
-    navigateTo('/dashboard')
+    navigateTo('/dashboard') // Comment ini
 </script>
