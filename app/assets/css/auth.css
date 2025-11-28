@@ -1,0 +1,135 @@
+/* Layout utama auth */
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Kolom kiri (form) */
+.auth-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F9FAFB;
+}
+
+.auth-left-inner {
+  width: 100%;
+  max-width: 420px;
+  padding: 0 2rem;
+}
+
+/* Kolom kanan (panel hijau) */
+.auth-right {
+  width: 40%;
+  background: #264631;
+  color: #ffffff;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Header panel kanan */
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth-brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+/* Teks panel kanan */
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.auth-subtitle {
+  margin-top: 2.5rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.auth-footer {
+  font-size: 0.875rem;
+  color: #E5E7EB;
+}
+
+/* ===== FORM LOGIN ===== */
+
+.auth-form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.auth-input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.auth-input:focus {
+  border-color: #14532d;
+  box-shadow: 0 0 0 1px #14532d33;
+}
+
+.auth-password-wrapper {
+  position: relative;
+}
+
+.auth-eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 18px;
+  border: none;
+  border-radius: 6px;
+  background: #264631;
+  color: #ffffff;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.auth-submit:hover {
+  background: #1f3827;
+}
+
+.auth-submit:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.auth-bottom-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-top: 10px;
+}
+
