@@ -30,7 +30,7 @@ definePageMeta({
   title: 'Profile Admin'
 })
 
-// 2. Data Admin (Ganti dengan data yang diambil dari API sebenarnya)
+// 2. Data Admin 
 const admin = reactive({
     name: 'Riki Meida',
     email: 'rikimeida@gmail.com',
