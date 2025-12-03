@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="logo-section">
-      <div class="logo-image"></div>
+      <img src="/logo_sekolah.png" alt="Logo" class="logo-image" />
       <div class="logo-text">
         <h5>BookingSystem</h5>
         <p>Web Peminjaman</p>
