@@ -1,4 +1,4 @@
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 import { errorResponse, successResponse } from '../utils/response';
 import { createItem, deleteItem, getAllItems, getItemByID, updateItem } from '../services/item.service';
 import { createItemRequest, itemIdRequest, itemPagination, updateItemRequest } from '../validators/item.validator';
@@ -7,18 +7,8 @@ import { error } from 'console';
 export const itemController = (app: Elysia) => {
     return app.group('/items', (app) => 
         app
-        .post('/', async ({body, request, set}) => {
+        .post('/', async ({body, set}) => {
             try {
-                const user = (request as any).user
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 401,
-                        error
-                    )
-                }
-
                 const item = await createItem({
                     name: body.name,
                     description: body.description,
@@ -63,17 +53,8 @@ export const itemController = (app: Elysia) => {
         }, {
             query: itemPagination
         })
-        .get('/:id', async ({params, request, set}) => {
+        .get('/:id', async ({params, set}) => {
             try {
-                const user = (request as any).user
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 401,
-                    )
-                }
-
                 const item = await getItemByID(params.id)
 
                 if (!item) {
@@ -95,17 +76,8 @@ export const itemController = (app: Elysia) => {
         }, {
             params: itemIdRequest
         })
-        .put('/:id', async ({params, body, request, set}) => {
+        .put('/:id', async ({params, body, set}) => {
             try {
-                const user = (request as any).user
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 401,
-                    )
-                }
-
                 const item = await updateItem(
                     params.id,
                     {
@@ -137,17 +109,8 @@ export const itemController = (app: Elysia) => {
             params: itemIdRequest,
             body: updateItemRequest
         })
-        .delete('/:id', async ({params, request, set}) => {
+        .delete('/:id', async ({params, set}) => {
             try {
-                const user = (request as any).user
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 404
-                    )
-                }
-
                 const deleted = await deleteItem(params.id)
 
                 if (!deleted) {

@@ -7,17 +7,8 @@ import { error } from 'console'
 export const teacherController = (app: Elysia) => {
     return app.group('/teachers', (app) => 
         app
-        .post('/', async ({body, request, set}) => {
+        .post('/', async ({body, set}) => {
             try {
-                const user = (request as any).teacher
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 401,
-                    )
-                }
-
                 const teacher = await addTeacher({
                     name: body.name,
                     class: body.class!
@@ -60,17 +51,8 @@ export const teacherController = (app: Elysia) => {
         }, {
             query:teacherPagination
         })
-        .get('/:id', async ({params, request, set}) => {
+        .get('/:id', async ({params, set}) => {
             try {
-                const user = (request as any).teacher
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 401
-                    )
-                }
-
                 const teacher = await getTeacherById(params.id)
 
                 if (!teacher) {
@@ -92,17 +74,8 @@ export const teacherController = (app: Elysia) => {
         }, {
             params: teacherIdRequest
         })
-        .put('/:id', async ({params, body, request, set}) => {
+        .put('/:id', async ({params, body, set}) => {
             try {
-                const user = (request as any).user
-
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 400
-                    )
-                }
-
                 const teacher = updateTeacher(params.id, {
                     name: body.name,
                     class: body.class!
@@ -125,16 +98,8 @@ export const teacherController = (app: Elysia) => {
             params: teacherIdRequest,
             body: teacherUpdateRequest
         })
-        .delete('/:id', async ({params, request, set}) => {
+        .delete('/:id', async ({params, set}) => {
             try {
-                const user = (request as any).user
-                if (!user) {
-                    return errorResponse(
-                        'unauthorized',
-                        set.status = 404
-                    )
-                }
-
                 const deleted = await deleteTeacher(params.id)
 
                 if (!deleted) {
