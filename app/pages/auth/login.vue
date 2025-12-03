@@ -23,7 +23,7 @@ const handleSubmit = async () => {
   try {
     // TODO: ganti dengan request ke API login kamu
     await new Promise(resolve => setTimeout(resolve, 800))
-    router.push('/barang/dashboard')
+    router.push('/dashboard')
   } catch (e) {
     error.value = 'Email atau password salah.'
   } finally {
