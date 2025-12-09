@@ -49,7 +49,8 @@ export const borrowController = (app: Elysia) => {
                     include: {
                         teacher: {
                             select: {
-                                name: true
+                                name: true,
+                                class: true
                             }
                         },
                         item: {
