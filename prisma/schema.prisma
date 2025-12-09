@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BorrowStatus {
+  BORROWED
+  AVAILABLE
+}
+
 model Admin {
   id          String      @id @default(uuid())
   name        String
@@ -69,7 +74,7 @@ model Borrow {
   return_date         DateTime?
   actual_return_time  DateTime?
   notes               String?
-  status              String
+  status              BorrowStatus 
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @default(now())
 }

@@ -1,10 +1,10 @@
 import { t } from "elysia";
 
 export const createBorrowRequest = t.Object({
-    name: t.String({
-        minLength: 1,
-        error: 'invalid name'
-    }),
+    // name: t.String({
+    //     minLength: 1,
+    //     error: 'invalid name'
+    // }),
     teacher_id: t.String({
         format: "uuid",
         error: 'invalid teacher id'
@@ -22,10 +22,10 @@ export const createBorrowRequest = t.Object({
     //     format: 'date-time',
     //     error: 'invalid borrow at date time format'
     // }),
-    return_date: t.String({
-        format: 'date-time',
-        error: 'invalid return date date time format'
-    }),
+    // return_date: t.String({
+    //     format: 'date-time',
+    //     error: 'invalid return date date time format'
+    // }),
     notes: t.Optional(
         t.String()
     ),

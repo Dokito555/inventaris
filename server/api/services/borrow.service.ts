@@ -1,7 +1,9 @@
 import prisma from "~~/server/db/prisma";
 import { CreateBorrowDTO } from "../models/borrow.model";
+import { BorrowStatus } from "@prisma/client";
 
 export async function createBorrow(data: CreateBorrowDTO) {
+    console.log("create borrow received: ", data)
     const item = await prisma.item.findUnique({
         where: {
             id: data.itemId
@@ -40,10 +42,12 @@ export async function createBorrow(data: CreateBorrowDTO) {
                 borrowed_at: now,
                 return_date: returnDate,
                 notes: data.notes,
-                status: BorrowStatus.BORROWED.toString()
+                status: BorrowStatus.BORROWED
             }
         })
     })
 
     return borrow
 }
+
+export async function returnItem() {}
