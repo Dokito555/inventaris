@@ -4,6 +4,7 @@ import { authController } from "./controllers/auth.controller";
 import { errorResponse } from "./utils/response";
 import { telegramController } from "./controllers/telegram.controller";
 import { itemController } from "./controllers/item.controller";
+import { borrowController } from "./controllers/borrow.controller"
 import { teacherController } from "./controllers/teacher.controller";
 import { authMiddleware } from "./middleware/auth.middleware";
 // import { authMiddleware } from "./middleware/auth.middleware";
@@ -13,6 +14,7 @@ const app = new Elysia({ prefix: '/api'})
     .use(authController)
     .use(telegramController)
     .use(itemController)
+    .use(borrowController)
     .use(teacherController)
     .onError(({code, error, set}) => {
         if (code === 'VALIDATION') {
