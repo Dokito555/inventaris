@@ -72,7 +72,7 @@
               <span>{{ item.quantity }}</span>
               <span>{{ formatDate(item.borrowed_at) }}</span>
               <span>{{ formatDate(item.return_date) }}</span>
-              <span class="status-cell">
+              <span>
                 <span class="status-badge" :class="getStatusClass(item.status)">
                   {{ formatStatus(item.status) }}
                 </span>

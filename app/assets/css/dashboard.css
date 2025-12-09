@@ -95,11 +95,11 @@
 }
 
 /* Header & Body */
-.dashboard-page .table-header-row,
+.table-header-row,
 .table-row {
     display: grid;
     /* 6 kolom fleksibel */
-    grid-template-columns: 0.5fr 2fr 2fr 1fr 2.5fr 2fr 1fr;
+    grid-template-columns: 0.5fr 2fr 2fr 1fr 2.5fr 2fr 2fr;
     gap: 15px;
     align-items: center;
 }
@@ -107,7 +107,7 @@
 .table-header {
     background: #F7F7F7;
     border-radius: 4px;
-    padding: 8px 15px;
+    padding: 0px;
 }
 
 .table-header-row span {
@@ -121,7 +121,7 @@
 }
 
 .table-row {
-    padding: 10px 15px;
+    padding: 8px 15px;
     border-bottom: 0.5px solid #9CA3AF;
 }
 
