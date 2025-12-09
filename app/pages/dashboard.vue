@@ -132,8 +132,13 @@ async function loadData() {
     
     // Hitung barang telat
     const now = new Date()
-    const overdueBorrows = activeBorrows.filter(b => new Date(b.return_date) < now)
-    const barangTelat = overdueBorrows.reduce((sum, b) => sum + (b.quantity || 0), 0)
+    const today = new Date().toDateString()
+    const overdueBorrows = activeBorrows.filter(b => {
+      const borrowDate = new Date(b.borrowed_at).toDateString()
+      return borrowDate !== today
+    })
+    const barangTelat = overdueBorrows.reduce((sum, b) => sum + b.quantity, 0)
+
     
     // Update stats
     stats.value = {

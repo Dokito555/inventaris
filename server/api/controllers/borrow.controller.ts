@@ -3,6 +3,7 @@ import { createBorrow } from "../services/borrow.service";
 import { createBorrowRequest } from "../validators/borrow.validator";
 import { errorResponse, successResponse } from "../utils/response";
 import prisma from "~~/server/db/prisma";
+import { BorrowStatus } from "@prisma/client"
 
 export const borrowController = (app: Elysia) => {
     return app.group('/borrows', (app) => {
@@ -77,5 +78,32 @@ export const borrowController = (app: Elysia) => {
                 )
             }
         })
+
+        .patch('/:id/return', async ({ params, set }) => {
+            try {
+                const id = params.id   // gunakan string, bukan Number()
+
+                const existing = await prisma.borrow.findUnique({
+                    where: { id }
+                })
+
+                if (!existing) {
+                    return errorResponse("borrow not found", set.status = 404)
+                }
+
+                const updated = await prisma.borrow.update({
+                    where: { id },
+                    data: {
+                        status: BorrowStatus.RETURNED,
+                        actual_return_time: new Date()
+                    }
+                })
+
+                return successResponse(updated)
+            } catch (error) {
+                return errorResponse("failed to update borrow", set.status = 500, error)
+            }
+        })
+
     })
 }

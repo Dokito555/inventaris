@@ -10,6 +10,7 @@ datasource db {
 enum BorrowStatus {
   BORROWED
   AVAILABLE
+  RETURNED
 }
 
 model Admin {
