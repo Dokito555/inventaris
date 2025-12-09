@@ -25,7 +25,6 @@ const app = new Elysia({ prefix: '/api'})
     .use(borrowController)
     .use(telegramController)
     .use(teacherController)
-    .use(borrowController)
 
     .onError(({code, error, set}) => {
         if (code === 'VALIDATION') {

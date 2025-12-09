@@ -5,7 +5,7 @@ import { errorResponse, successResponse } from "../utils/response";
 import prisma from "~~/server/db/prisma";
 
 export const borrowController = (app: Elysia) => {
-    return app.group('/borrow', (app) => {
+    return app.group('/borrows', (app) => {
         return app.post('/',async ({ body, set }) => {
                 try {
                     const res = await createBorrow({
@@ -33,8 +33,7 @@ export const borrowController = (app: Elysia) => {
             },
             { body: createBorrowRequest }
         )
-    })
-    .get('/', async ({query, set}) => {
+        .get('/', async ({query, set}) => {
             try {
                 const limit = Number(query?.limit) || 10
                 const page = Number(query?.page) || 1
@@ -78,4 +77,5 @@ export const borrowController = (app: Elysia) => {
                 )
             }
         })
+    })
 }
