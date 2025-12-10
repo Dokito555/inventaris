@@ -79,7 +79,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1" class="pagination-wrapper">
+      <div v-if="totalPages => 1" class="pagination-wrapper">
         <button 
           class="pagination-btn" 
           :class="{ disabled: currentPage === 1 }"
