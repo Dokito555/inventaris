@@ -16,11 +16,12 @@ export const teacherController = (app: Elysia) => {
 
                 return successResponse(teacher, 'teacher added successfully')
             } catch(error) {
-                console.error('failed to add teacher: ', error)
+                console.log('create teacher error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to add teacher',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'create teacher error'
                 )
             }
         }, {
@@ -41,11 +42,12 @@ export const teacherController = (app: Elysia) => {
                     teachers
                 }
             } catch(error) {
-                console.error("failed to get all teachers: ", error)
+                console.log('get teachers error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to get all teachers',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'get teachers error'
                 )
             }
         }, {
@@ -55,20 +57,14 @@ export const teacherController = (app: Elysia) => {
             try {
                 const teacher = await getTeacherById(params.id)
 
-                if (!teacher) {
-                    return errorResponse(
-                        'teacher not found',
-                        set.status = 404,
-                    )
-                }
-
                 return successResponse(teacher)
             } catch (error) {
-                console.error("failed to get teacher by id: ", error)
+                console.log('get teacher error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to get teacher by id',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'get teacher error'
                 )
             }
         }, {
@@ -81,18 +77,15 @@ export const teacherController = (app: Elysia) => {
                     class: body.class!
                 })
 
-                if (!teacher) {
-                    return errorResponse(
-                        'teacher not found or unauthorized',
-                        set.status = 404
-                    )
-                }
-
                 return successResponse(teacher, 'teacher updated successfully')
             } catch (error) {
-                console.error('failed to update teacher: ', error)
-                set.status = 500,
-                error
+                 console.log('update teacher error: ', error)
+                set.status = 500
+                return errorResponse(
+                    error instanceof Error
+                    ? error.message
+                    : 'update teacher error'
+                )
             }
         }, {
             params: teacherIdRequest,
@@ -102,20 +95,14 @@ export const teacherController = (app: Elysia) => {
             try {
                 const deleted = await deleteTeacher(params.id)
 
-                if (!deleted) {
-                    return errorResponse(
-                        'teacher not found or unauthorized',
-                        set.status = 404
-                    )
-                }
-
-                return successResponse()
+                return successResponse(deleted)
             } catch (error) {
-                console.error('delete teacher successfully: ', error)
+                console.log('delete teacher error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to delete teacher',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'delete teacher error'
                 )
             }
         }, {

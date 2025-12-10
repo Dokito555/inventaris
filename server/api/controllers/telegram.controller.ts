@@ -15,10 +15,11 @@ export const telegramController = (app: Elysia) => {
                 return successResponse({received: true})
             } catch(error) {
                 console.log('webhook error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'webhook processing failed',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'webhook error'
                 )
             }
         }, {
@@ -43,11 +44,12 @@ export const telegramController = (app: Elysia) => {
                     linked: true
                 })
             } catch(error) {
-                console.log('link error: ', error)
+                console.log('linking account error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'linking failed',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'linking account error'
                 )
             }
         }, {
@@ -71,10 +73,11 @@ export const telegramController = (app: Elysia) => {
                 return successResponse({sent: true})
             } catch(error) {
                 console.log('test message error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'test message failed',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'test message error'
                 )
             }
         }, {
@@ -95,10 +98,11 @@ export const telegramController = (app: Elysia) => {
                 return successResponse({webhook: 'configured'})
             } catch(error) {
                 console.log('webhook setup error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'webhook setup failed',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'webhook setup error'
                 )
             }
         }, {

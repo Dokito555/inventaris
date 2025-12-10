@@ -35,6 +35,10 @@ export async function getTeacherById(teacherId: string) {
         }
     })
 
+    if (!teacher) {
+        throw new Error('teacher doesnt exist')
+    }
+
     return teacher
 }
 

@@ -18,11 +18,12 @@ export const itemController = (app: Elysia) => {
 
                 return successResponse(item, 'item created successfully')
             } catch(error) {
-                console.error('create item error: ', error)
+                console.log('create item error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to create item',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'create item error'
                 )
             }
         }, {
@@ -43,11 +44,12 @@ export const itemController = (app: Elysia) => {
                     items
                 }
             } catch(error) {
-                console.error('failed to get all items')
+                console.log('get all items error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to get all items',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'get all items error'
                 )
             } 
         }, {
@@ -66,11 +68,12 @@ export const itemController = (app: Elysia) => {
 
                 return successResponse(item)
             } catch(error) {
-                console.error('get item error: ', error)
+                console.log('get item error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to get item',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'get item error'
                 )
             }
         }, {
@@ -98,11 +101,12 @@ export const itemController = (app: Elysia) => {
 
                 return successResponse(item, 'item updated successfully')
             } catch(error) {
-                console.error('update item error: ', error)
+                console.log('update item error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to update item',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'update item error'
                 )
             }
         }, {
@@ -112,21 +116,14 @@ export const itemController = (app: Elysia) => {
         .delete('/:id', async ({params, set}) => {
             try {
                 const deleted = await deleteItem(params.id)
-
-                if (!deleted) {
-                    return errorResponse(
-                        'item not found or unauthorized',
-                        set.status = 404
-                    )
-                }
-
-                return successResponse()
+                return successResponse(deleted)
             } catch(error) {
-                console.error('delete item error: ', error)
+                console.log('delete item error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'failed to delete item',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'delete item error'
                 )
             }
         }, {

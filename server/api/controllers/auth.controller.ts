@@ -20,10 +20,12 @@ export const authController = (app: Elysia) => {
 
                 return successResponse(user)
             } catch(error) {
+                console.log('register error: ', error)
+                set.status = 500
                 return errorResponse(
-                    error instanceof Error ? error.message : 'unexpected error',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'failed to register'
                 )
             }
         }, {
@@ -34,10 +36,12 @@ export const authController = (app: Elysia) => {
                 const user = await login(body.email, body.password)
 
                 if (!user) {
+                    console.log('user doesnt exist')
+                    set.status = 400
                     return errorResponse(
-                        'invalid credentials',
-                        set.status = 401,
-                        error
+                        error instanceof Error
+                        ? error.message
+                        : 'user doesnt exist'
                     )
                 }
 
@@ -51,10 +55,12 @@ export const authController = (app: Elysia) => {
                 console.log('session token: ', session.value)
                 return successResponse(user)
             } catch(error) {
+                console.log('login error: ', error)
+                set.status = 500
                 return errorResponse(
-                    'login failed',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'failed to login'
                 )
             }
         }, {
@@ -65,11 +71,12 @@ export const authController = (app: Elysia) => {
                 const token = session.value as string || undefined
 
                 if (token == undefined) {
-                    console.log("token undefined: %d", token)
+                    console.log('token undefined %d: ', token)
+                    set.status = 400
                     return errorResponse(
-                        'token is undefined',
-                        set.status = 401,
-                        error
+                        error instanceof Error
+                        ? error.message
+                        : 'token undefined'
                     )
                 }
 
@@ -81,10 +88,12 @@ export const authController = (app: Elysia) => {
 
                 return successResponse()
             } catch(error) {
+                console.log('failed to logout: ', error)
+                set.status = 500
                 return errorResponse(
-                    'logout failed',
-                    set.status = 500,
-                    error
+                    error instanceof Error
+                    ? error.message
+                    : 'failed to logout'
                 )
             }
         }, {

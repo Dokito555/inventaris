@@ -72,3 +72,12 @@ export const borrowIdRequest = t.Object({
         error: 'invalid borrow id'
     })
 })
+
+export const borrowQuery = t.Object({
+    limit: t.Number({
+        minimum: 10
+    }),
+    page: t.Number({
+        minimu1: 1
+    })
+})
