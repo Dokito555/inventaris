@@ -1,78 +1,133 @@
 <script setup>
+
 import { reactive, ref } from 'vue'
+
 import { useRouter, definePageMeta } from '#imports'
 
 definePageMeta({
+
   layout: 'auth'
+
 })
 
 const router = useRouter()
 
 const form = reactive({
+
   name: '',
+
   email: '',
+
   phone_number: '',
+
   password: '',
+
   password_confirmation: ''
+
 })
 
 const loading = ref(false)
+
 const error = ref('')
+
 const success = ref(false)
 
 const handleSubmit = async () => {
+
   loading.value = true
+
   error.value = ''
+
   success.value = false
 
   if (form.password !== form.password_confirmation) {
+
     error.value = 'Password dan konfirmasi tidak sama.'
+
     loading.value = false
+
     return
+
   }
 
   if (form.password.length < 8) {
+
     error.value = 'Password minimal 8 karakter.'
+
     loading.value = false
+
     return
+
   }
 
   try {
+
     const response = await $fetch('/api/auth/register', {
+
       method: 'POST',
+
+      credentials: 'include', // TAMBAHKAN INI untuk cookies
+
       body: {
+
         name: form.name,
+
         email: form.email,
+
         phone_number: form.phone_number,
+
         password: form.password
+
       }
+
     })
 
     console.log('Response:', response)
 
     if (response.success) {
+
       success.value = true
+
       setTimeout(() => {
+
         router.push('/auth/login')
-      }, 1000)
+
+      }, 1500)
+
     } else {
+
       error.value = response.message || 'Registrasi gagal.'
+
     }
 
   } catch (e) {
+
     console.error('Error:', e)
+
     
-    if (e.data) {
-      error.value = e.data.message || 'Registrasi gagal.'
+
+    if (e.data?.message) {
+
+      error.value = e.data.message
+
     } else if (e.message) {
+
       error.value = e.message
+
     } else {
+
       error.value = 'Terjadi kesalahan. Coba lagi.'
+
     }
+
   } finally {
+
     loading.value = false
+
   }
+
 }
+
 </script>
 
 <template>
