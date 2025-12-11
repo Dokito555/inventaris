@@ -3,14 +3,24 @@ import { register, login } from '../services/auth.service'
 import { errorResponse, successResponse } from '../utils/response'
 import { createSession, deleteSession } from '../services/session.service'
 import { loginRequest, registerRequest } from '../validators/auth.validator'
-import { error } from 'console'
 
 export const authController = (app: Elysia) => {
     return app.group('/auth', (app) => 
         app
         .post('/register', async ({body, set}) => {
             try {
+                console.log('Register request body:', body) // ✅ Debug log
+                
+                // ✅ Validasi input
+                if (!body.email || !body.password || !body.name || !body.phone_number) {
+                    set.status = 400
+                    return errorResponse('Semua field harus diisi')
+                }
+
+                // ✅ Convert phone_number ke string
                 const phoneNumStr = body.phone_number.toString()
+                
+                // ✅ Register user
                 const user = await register(
                     body.email,
                     body.password,
@@ -18,86 +28,101 @@ export const authController = (app: Elysia) => {
                     phoneNumStr,
                 )
 
-                return successResponse(user)
+                console.log('User registered:', user) // ✅ Debug log
+
+                return successResponse(user, 'Registrasi berhasil')
             } catch(error) {
-                console.log('register error: ', error)
+                console.error('Register error:', error) // ✅ Better logging
                 set.status = 500
-                return errorResponse(
-                    error instanceof Error
-                    ? error.message
-                    : 'failed to register'
-                )
+                
+                // ✅ Handle error message
+                let errorMessage = 'Gagal mendaftar'
+                
+                if (error instanceof Error) {
+                    errorMessage = error.message
+                    
+                    // ✅ Handle duplicate email
+                    if (error.message.includes('email')) {
+                        errorMessage = 'Email sudah terdaftar'
+                    }
+                    
+                    // ✅ Handle duplicate phone
+                    if (error.message.includes('phone')) {
+                        errorMessage = 'Nomor telepon sudah terdaftar'
+                    }
+                }
+                
+                return errorResponse(errorMessage)
             }
         }, {
             body: registerRequest
         })
+        
         .post('/login', async ({body, cookie: {session}, set}) => {
             try {
+                console.log('Login attempt:', body.email) // ✅ Debug log
+                
                 const user = await login(body.email, body.password)
 
                 if (!user) {
-                    console.log('user doesnt exist')
-                    set.status = 400
-                    return errorResponse(
-                        error instanceof Error
-                        ? error.message
-                        : 'user doesnt exist'
-                    )
+                    console.log('User not found or invalid password')
+                    set.status = 401
+                    return errorResponse('Email atau password salah')
                 }
 
+                // ✅ Create session
                 const s = await createSession(user.id)
 
+                // ✅ Set cookie
                 session.value = s.token
                 session.httpOnly = true
                 session.maxAge = 3 * 24 * 60 * 60
                 session.sameSite = 'lax'
+                session.path = '/'
 
-                console.log('session token: ', session.value)
-                return successResponse(user)
+                console.log('Session created:', session.value)
+                
+                return successResponse(user, 'Login berhasil')
             } catch(error) {
-                console.log('login error: ', error)
+                console.error('Login error:', error)
                 set.status = 500
+                
                 return errorResponse(
                     error instanceof Error
-                    ? error.message
-                    : 'failed to login'
+                        ? error.message
+                        : 'Gagal login'
                 )
             }
         }, {
             body: loginRequest
         })
+        
         .delete('/logout', async ({cookie: {session}, set}) => {
             try {
-                const token = session.value as string || undefined
+                const token = session.value as string | undefined
 
-                if (token == undefined) {
-                    console.log('token undefined %d: ', token)
+                if (!token) {
                     set.status = 400
-                    return errorResponse(
-                        error instanceof Error
-                        ? error.message
-                        : 'token undefined'
-                    )
+                    return errorResponse('Token tidak ditemukan')
                 }
 
-                if (token) {
-                    await deleteSession(token)
-                }
-
+                // ✅ Delete session
+                await deleteSession(token)
+                
+                // ✅ Remove cookie
                 session.remove()
 
-                return successResponse()
+                return successResponse(null, 'Logout berhasil')
             } catch(error) {
-                console.log('failed to logout: ', error)
+                console.error('Logout error:', error)
                 set.status = 500
+                
                 return errorResponse(
                     error instanceof Error
-                    ? error.message
-                    : 'failed to logout'
+                        ? error.message
+                        : 'Gagal logout'
                 )
             }
-        }, {
-            body: t.Any()
         })
     )
 }
