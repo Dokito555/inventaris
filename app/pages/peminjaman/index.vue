@@ -229,6 +229,10 @@ function handleSearch() {
   currentPage.value = 1
 }
 
+function openAddModal() {
+  navigateTo('/peminjaman/create')  // ← Baris ini yang baru
+}
+
 // Status helpers
 function getStatusClass(item) {
   const now = new Date()

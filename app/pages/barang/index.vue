@@ -222,7 +222,7 @@ function handleImageError(event) {
 }
 
 function openAddModal() {
-  alert('Fitur tambah barang akan segera hadir!')
+  navigateTo('/barang/create')
 }
 
 onMounted(() => {
