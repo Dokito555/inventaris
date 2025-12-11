@@ -34,7 +34,7 @@ definePageMeta({
 const admin = reactive({
     name: 'Riki Meida',
     email: 'rikimeida@gmail.com',
-    avatarUrl: '/images/admin.png'
+    avatarUrl: '/admin.png'
 });
 
 // 3. Fungsi Logout
