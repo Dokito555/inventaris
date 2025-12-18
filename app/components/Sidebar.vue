@@ -18,6 +18,10 @@
         <NuxtLink to="/peminjaman">List Peminjaman Barang</NuxtLink>
       </li>
 
+      <li :class="{ active: isActive('/peminjaman/create') }">
+        <NuxtLink to="/peminjaman/create">CRUD Peminjaman</NuxtLink>
+      </li>
+
       <li :class="{ active: isActive('/barang') }">
         <NuxtLink to="/barang">Daftar Barang</NuxtLink>
       </li>
