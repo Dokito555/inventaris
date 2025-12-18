@@ -10,31 +10,33 @@
 
     <ul class="sidebar-menu">
 
-      <li :class="{ active: isActive('/dashboard') }">
+      <li :class="{ active: isExact('/dashboard') }">
         <NuxtLink to="/dashboard">Dashboard</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/peminjaman') }">
+      <li :class="{ active: isExact('/peminjaman') }">
         <NuxtLink to="/peminjaman">List Peminjaman Barang</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/peminjaman/create') }">
+      <li :class="{ active: isExact('/peminjaman/create') }">
         <NuxtLink to="/peminjaman/create">CRUD Peminjaman</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/barang') }">
+      <!-- DAFTAR BARANG (index saja) -->
+      <li :class="{ active: isExact('/barang') }">
         <NuxtLink to="/barang">Daftar Barang</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/barang/create') }">
+      <!-- CRUD BARANG (create + [id]) -->
+      <li :class="{ active: isBarangCrudActive() }">
         <NuxtLink to="/barang/create">CRUD Barang</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/peminjaman/history') }">
+      <li :class="{ active: isExact('/peminjaman/history') }">
         <NuxtLink to="/peminjaman/history">Riwayat Peminjaman</NuxtLink>
       </li>
 
-      <li :class="{ active: isActive('/kelas') }">
+      <li :class="{ active: isExact('/kelas') }">
         <NuxtLink to="/kelas">List Guru</NuxtLink>
       </li>
 
@@ -46,7 +48,15 @@
 import { useRoute } from 'vue-router'
 const route = useRoute()
 
-const isActive = (path) => route.path === path
+const isExact = (path) => route.path === path
+
+// Untuk CRUD Barang: create + detail
+const isBarangCrudActive = () => {
+  return (
+    route.path === '/barang/create' ||
+    /^\/barang\/[^/]+$/.test(route.path)
+  )
+}
 </script>
 
 <style scoped>
