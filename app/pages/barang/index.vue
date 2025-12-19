@@ -56,7 +56,8 @@
           <div 
             v-for="(item, index) in paginatedItems" 
             :key="item.id" 
-            class="table-row"
+            class="table-row clickable"
+            @click="goToDetail(item.id)"
           >
             <span class="row-number">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</span>
             
@@ -169,6 +170,11 @@ const filteredItems = computed(() => {
     return itemName.includes(query) || itemDescription.includes(query)
   })
 })
+
+// langsung mengarah ke edit item
+function goToDetail(id) {
+  navigateTo(`/barang/${id}`)
+}
 
 // Pagination
 const totalPages = computed(() => {
@@ -412,6 +418,10 @@ onMounted(() => {
   border-bottom: 0.5px solid #E5E7EB;
   align-items: start;
   transition: background 0.2s ease;
+}
+
+.table-row.clickable {
+  cursor: pointer;
 }
 
 .table-row:hover {

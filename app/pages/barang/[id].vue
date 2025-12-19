@@ -10,18 +10,23 @@
     <div v-else class="form-container">
       <div class="form-header">
         <h2>Edit Barang</h2>
+        <p>Isi form di bawah untuk edit barang</p>
       </div>
 
       <form @submit.prevent="submitForm">
         <!-- Nama Barang -->
         <div class="form-group">
-          <label for="name">Nama Barang</label>
+          <label for="name">
+            Nama Barang 
+            <span class="required">*</span>
+          </label>
           <input
             id="name"
             type="text"
             v-model="form.name"
-            placeholder="Isi Nama Barang"
+            placeholder="Contoh: Proyektor LCD"
             required
+            :disabled="loading"
           >
         </div>
 
@@ -31,20 +36,25 @@
           <textarea
             id="description"
             v-model="form.description"
-            placeholder="Lorem ipsum"
+            placeholder="Masukkan deskripsi barang (opsional)"
             rows="5"
+            :disabled="loading"
           ></textarea>
+          <p class="help-text">Deskripsikan kondisi, spesifikasi, atau catatan penting lainnya</p>
         </div>
 
         <!-- Kuantitas Barang -->
         <div class="form-group">
-          <label for="quantity">Kuantitas Barang</label>
+          <label for="quantity">
+            Kuantitas Barang 
+            <span class="required">*</span>
+          </label>
           <div class="quantity-control">
             <button 
               type="button" 
               class="qty-btn"
               @click="decrementQuantity"
-              :disabled="form.quantity <= 1"
+              :disabled="form.quantity <= 1  || loading"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
@@ -67,18 +77,24 @@
               </svg>
             </button>
           </div>
+          <p class="help-text">Jumlah barang yang tersedia</p>
         </div>
 
         <!-- Upload Gambar -->
         <div class="form-group">
           <label for="image">Upload Gambar</label>
-          <div class="upload-area" @click="triggerFileInput">
+          <div 
+            class="upload-area" 
+            @click="triggerFileInput"
+            :class="{ disabled: loading }"
+          >
             <input
               ref="fileInput"
               type="file"
               id="image"
               accept="image/*"
               @change="handleFileUpload"
+              :disabled="loading"
               hidden
             >
             <div v-if="!imagePreview" class="upload-placeholder">
@@ -89,6 +105,7 @@
               <p>Klik untuk upload gambar</p>
               <span>PNG, JPG, JPEG (max 5MB)</span>
             </div>
+
             <div v-else class="image-preview">
               <img :src="imagePreview" alt="Preview">
               <button type="button" class="remove-image" @click.stop="removeImage">
@@ -98,41 +115,7 @@
               </button>
             </div>
           </div>
-        </div>
-
-        <!-- Status Barang -->
-        <div class="form-group">
-          <label>Status Barang</label>
-          <div class="status-buttons">
-            <button
-              type="button"
-              :class="['status-btn', { active: form.status === 'available' }]"
-              @click="form.status = 'available'"
-            >
-              Available
-            </button>
-            <button
-              type="button"
-              :class="['status-btn', { active: form.status === 'dipinjam' }]"
-              @click="form.status = 'dipinjam'"
-            >
-              Dipinjam
-            </button>
-            <button
-              type="button"
-              :class="['status-btn', { active: form.status === 'telat' }]"
-              @click="form.status = 'telat'"
-            >
-              Telat
-            </button>
-            <button
-              type="button"
-              :class="['status-btn', { active: form.status === 'rusak' }]"
-              @click="form.status = 'rusak'"
-            >
-              Rusak
-            </button>
-          </div>
+          <p class="help-text">Upload gambar barang untuk memudahkan identifikasi (opsional)</p>
         </div>
 
         <!-- Form Actions -->
@@ -141,6 +124,7 @@
             type="button" 
             class="btn-cancel"
             @click="navigateTo('/barang')"
+            :disabled="loading"
           >
             Batal
           </button>
@@ -164,29 +148,35 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="modal-overlay" @click="showDeleteModal = false">
-      <div class="modal-content" @click.stop>
+    <div v-if="showDeleteModal" class="modal-overlay">
+      <div class="modal-card">
         <div class="modal-header">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-          </svg>
           <h3>Konfirmasi Hapus</h3>
-          <p>Apakah Anda yakin ingin menghapus barang <strong>{{ form.name }}</strong>?</p>
-          <p class="warning-text">Tindakan ini tidak dapat dibatalkan.</p>
         </div>
+
+        <div class="modal-body">
+          <p>
+            Apakah kamu yakin ingin menghapus barang
+            <strong>"{{ form.name || '-' }}"</strong>?
+          </p>
+          <p class="warning-text">
+            Tindakan ini tidak dapat dibatalkan.
+          </p>
+        </div>
+
         <div class="modal-actions">
           <button 
             type="button" 
-            class="btn-modal-cancel"
+            class="btn-cancel"
             @click="showDeleteModal = false"
             :disabled="loading"
           >
             Batal
           </button>
+
           <button 
             type="button" 
-            class="btn-modal-delete"
+            class="btn-danger"
             @click="deleteItem"
             :disabled="loading"
           >
@@ -195,6 +185,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- Success/Error Message -->
     <div v-if="message.show" :class="['message', message.type]">
@@ -212,16 +203,15 @@ definePageMeta({
   title: 'Edit Barang'
 })
 
-// Route
 const route = useRoute()
-const itemId = ref(route.params.id)
+const itemId = route.params.id
 
-// State
 const loading = ref(false)
 const loadingData = ref(true)
-const fileInput = ref(null)
 const imagePreview = ref(null)
+const fileInput = ref(null)
 const showDeleteModal = ref(false)
+
 const message = reactive({
   show: false,
   type: 'success',
@@ -232,46 +222,66 @@ const form = reactive({
   name: '',
   description: '',
   quantity: 1,
-  image: null,
-  status: 'available',
-  existingImage: null
+  available: true,
+  image: null // base64
 })
 
-// Load item data saat component mounted
-onMounted(async () => {
-  await loadItemData()
-})
+/* ================= LOAD DATA ================= */
+onMounted(loadItem)
 
-async function loadItemData() {
-  loadingData.value = true
+async function loadItem() {
   try {
-    const response = await $fetch(`/api/items/${itemId.value}`)
-    
-    if (response.success) {
-      const item = response.data
-      form.name = item.name
-      form.description = item.description
-      form.quantity = item.quantity
-      form.status = item.status
-      form.existingImage = item.image
-      
-      // Set preview untuk gambar existing
-      if (item.image) {
-        imagePreview.value = item.image
-      }
-    }
-  } catch (error) {
-    console.error('Error loading item:', error)
+    const res = await $fetch(`/api/items/${itemId}`)
+    if (!res.success) throw new Error()
+
+    const item = res.data
+    form.name = item.name
+    form.description = item.description
+    form.quantity = item.quantity
+    form.available = item.available
+    form.image = item.image
+
+    imagePreview.value = item.image
+  } catch (e) {
     showMessage('error', 'Gagal memuat data barang')
-    setTimeout(() => {
-      navigateTo('/barang')
-    }, 2000)
+    setTimeout(() => navigateTo('/barang'), 2000)
   } finally {
     loadingData.value = false
   }
 }
 
-// Quantity controls
+/* ================= IMAGE ================= */
+function triggerFileInput() {
+  fileInput.value.click()
+}
+
+function handleFileUpload(e) {
+  const file = e.target.files[0]
+  if (!file) return
+
+  if (!['image/png', 'image/jpeg'].includes(file.type)) {
+    return showMessage('error', 'Format gambar tidak valid')
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return showMessage('error', 'Ukuran gambar maksimal 5MB')
+  }
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    form.image = reader.result
+    imagePreview.value = reader.result
+  }
+  reader.readAsDataURL(file)
+}
+
+function removeImage() {
+  form.image = null
+  imagePreview.value = null
+  fileInput.value.value = ''
+}
+
+// kuantitas
 function incrementQuantity() {
   form.quantity++
 }
@@ -282,122 +292,62 @@ function decrementQuantity() {
   }
 }
 
-// File upload
-function triggerFileInput() {
-  fileInput.value.click()
-}
-
-function handleFileUpload(event) {
-  const file = event.target.files[0]
-  if (!file) return
-
-  // Validasi file
-  const maxSize = 5 * 1024 * 1024 // 5MB
-  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg']
-
-  if (!allowedTypes.includes(file.type)) {
-    showMessage('error', 'Format file tidak didukung. Gunakan PNG, JPG, atau JPEG')
-    return
-  }
-
-  if (file.size > maxSize) {
-    showMessage('error', 'Ukuran file terlalu besar. Maksimal 5MB')
-    return
-  }
-
-  // Preview image
-  form.image = file
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    imagePreview.value = e.target.result
-  }
-  reader.readAsDataURL(file)
-}
-
-function removeImage() {
-  form.image = null
-  form.existingImage = null
-  imagePreview.value = null
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
-
-// Submit form (Update)
+/* ================= SUBMIT ================= */
 async function submitForm() {
   loading.value = true
-
   try {
-    const formData = new FormData()
-    formData.append('name', form.name)
-    formData.append('description', form.description)
-    formData.append('quantity', form.quantity)
-    formData.append('status', form.status)
-    
-    if (form.image) {
-      formData.append('image', form.image)
-    } else if (form.existingImage) {
-      formData.append('existingImage', form.existingImage)
+    const payload = {
+      name: form.name,
+      description: form.description,
+      quantity: form.quantity,
+      available: form.available,
+      image: form.image
     }
 
-    const response = await $fetch(`/api/items/${itemId.value}`, {
+    const res = await $fetch(`/api/items/${itemId}`, {
       method: 'PUT',
-      body: formData
+      body: payload
     })
 
-    if (response.success) {
-      showMessage('success', 'Barang berhasil diupdate!')
-      
-      setTimeout(() => {
-        navigateTo('/barang')
-      }, 2000)
-    }
-  } catch (error) {
-    console.error('Error updating item:', error)
-    showMessage('error', error.data?.message || 'Gagal mengupdate barang')
+    if (!res.success) throw new Error()
+    showMessage('success', 'Barang berhasil diupdate')
+    setTimeout(() => navigateTo('/barang'), 1500)
+  } catch (e) {
+    showMessage('error', 'Gagal menyimpan perubahan')
   } finally {
     loading.value = false
   }
 }
 
-// Delete functions
+/* ================= DELETE ================= */
+async function deleteItem() {
+  loading.value = true
+  try {
+    const res = await $fetch(`/api/items/${itemId}`, {
+      method: 'DELETE'
+    })
+
+    if (!res.success) throw new Error()
+    showMessage('success', 'Barang berhasil dihapus')
+    setTimeout(() => navigateTo('/barang'), 1500)
+  } catch (e) {
+    showMessage('error', 'Gagal menghapus barang')
+  } finally {
+    loading.value = false
+    showDeleteModal.value = false
+  }
+}
+
 function confirmDelete() {
   showDeleteModal.value = true
 }
 
-async function deleteItem() {
-  loading.value = true
-
-  try {
-    const response = await $fetch(`/api/items/${itemId.value}`, {
-      method: 'DELETE'
-    })
-
-    if (response.success) {
-      showDeleteModal.value = false
-      showMessage('success', 'Barang berhasil dihapus!')
-      
-      setTimeout(() => {
-        navigateTo('/barang')
-      }, 2000)
-    }
-  } catch (error) {
-    console.error('Error deleting item:', error)
-    showMessage('error', error.data?.message || 'Gagal menghapus barang')
-  } finally {
-    loading.value = false
-  }
-}
-
-// Show message
+/* ================= HELPERS ================= */
 function showMessage(type, text) {
   message.type = type
   message.text = text
   message.show = true
-
-  setTimeout(() => {
-    message.show = false
-  }, 3000)
+  setTimeout(() => (message.show = false), 3000)
 }
 </script>
 
@@ -414,6 +364,33 @@ function showMessage(type, text) {
   border-radius: 10px;
   padding: 80px 32px;
   text-align: center;
+}
+
+/* Form Container */
+.form-container {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.form-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 8px 0;
+}
+
+.form-header p {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
 }
 
 .spinner {
@@ -437,23 +414,29 @@ function showMessage(type, text) {
 }
 
 /* Form Container */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.required {
+  color: #EF4444;
+  margin-left: 2px;
+}
+
 .form-container {
   background: #FFFFFF;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 32px;
-}
-
-.form-header {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #E5E7EB;
-}
-
-.form-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1F2937;
-  margin: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Form Group */
@@ -464,9 +447,9 @@ function showMessage(type, text) {
 .form-group label {
   display: block;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #1F2937;
+  font-size: 14px;
+  line-height: 20px;
+  color: #374151;
   margin-bottom: 8px;
 }
 
@@ -476,20 +459,21 @@ function showMessage(type, text) {
   width: 100%;
   padding: 12px 16px;
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 20px;
   color: #1F2937;
   background: #FFFFFF;
   border: 1px solid #D1D5DB;
   border-radius: 8px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .form-group input[type="text"]:focus,
 .form-group input[type="number"]:focus,
 .form-group textarea:focus {
   border-color: #264631;
+  box-shadow: 0 0 0 3px rgba(38, 70, 49, 0.1);
 }
 
 .form-group input::placeholder,
@@ -500,6 +484,13 @@ function showMessage(type, text) {
 .form-group textarea {
   resize: vertical;
   min-height: 120px;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 6px;
+  display: block;
 }
 
 /* Quantity Control */
@@ -522,7 +513,7 @@ function showMessage(type, text) {
   border: none;
   cursor: pointer;
   color: #374151;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .qty-btn:hover:not(:disabled) {
@@ -544,6 +535,7 @@ function showMessage(type, text) {
   border-right: 1px solid #D1D5DB;
   border-radius: 0;
   padding: 0;
+  margin: 0;
   -moz-appearance: textfield;
 }
 
@@ -565,11 +557,17 @@ function showMessage(type, text) {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #F9FAFB;
 }
 
-.upload-area:hover {
+.upload-area:hover:not(.disabled) {
   border-color: #264631;
-  background: #F9FAFB;
+  background: #F3F4F6;
+}
+
+.upload-area.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .upload-placeholder {
@@ -591,7 +589,7 @@ function showMessage(type, text) {
 }
 
 .upload-placeholder span {
-  font-size: 14px;
+  font-size: 13px;
   color: #6B7280;
 }
 
@@ -625,12 +623,18 @@ function showMessage(type, text) {
   justify-content: center;
   cursor: pointer;
   color: #FFFFFF;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.remove-image:hover {
+.remove-image:hover:not(:disabled) {
   background: #DC2626;
   transform: scale(1.1);
+}
+
+.remove-image:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Status Buttons */
@@ -701,12 +705,15 @@ function showMessage(type, text) {
 .btn-submit {
   padding: 12px 24px;
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-cancel {
@@ -738,121 +745,145 @@ function showMessage(type, text) {
 .btn-submit {
   background: #264631;
   color: #FFFFFF;
-  min-width: 120px;
+  min-width: 140px;
 }
 
 .btn-submit:hover:not(:disabled) {
   background: #1a3322;
 }
 
-.btn-submit:disabled {
+.btn-submit:disabled,
+.btn-cancel:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Modal */
+.loading-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner-icon {
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+/* Overlay */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
-  padding: 20px;
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
 }
 
-.modal-content {
-  background: #FFFFFF;
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 480px;
+/* Card */
+.modal-card {
+  background: #ffffff;
   width: 100%;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: scaleIn 0.2s ease;
 }
 
+/* Header */
 .modal-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.modal-header svg {
-  color: #EF4444;
-  margin-bottom: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .modal-header h3 {
-  font-size: 20px;
+  margin: 0;
+  font-size: 18px;
   font-weight: 600;
-  color: #1F2937;
-  margin: 0 0 12px 0;
+  color: #1f2937;
 }
 
-.modal-header p {
+/* Body */
+.modal-body {
+  padding: 20px 24px;
+}
+
+.modal-body p {
+  margin: 0 0 10px;
   font-size: 14px;
-  color: #6B7280;
-  margin: 8px 0;
-}
-
-.modal-header strong {
-  color: #1F2937;
-  font-weight: 600;
+  color: #374151;
+  line-height: 1.6;
 }
 
 .warning-text {
-  color: #EF4444 !important;
-  font-weight: 500 !important;
+  color: #b91c1c;
+  font-size: 13px;
 }
 
+/* Actions */
 .modal-actions {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
 }
 
-.btn-modal-cancel,
-.btn-modal-delete {
-  padding: 12px 24px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  min-width: 120px;
-}
-
-.btn-modal-cancel {
-  background: #FFFFFF;
+/* Buttons */
+.modal-actions .btn-cancel {
+  background: #f3f4f6;
   color: #374151;
-  border: 1px solid #D1D5DB;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.btn-modal-cancel:hover:not(:disabled) {
-  background: #F9FAFB;
+.btn-cancel:hover {
+  background: #e5e7eb;
 }
 
-.btn-modal-cancel:disabled {
+.btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-danger:disabled,
+.btn-cancel:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-modal-delete {
-  background: #EF4444;
-  color: #FFFFFF;
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.btn-modal-delete:hover:not(:disabled) {
-  background: #DC2626;
-}
-
-.btn-modal-delete:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Message */
@@ -860,12 +891,16 @@ function showMessage(type, text) {
   position: fixed;
   top: 24px;
   right: 24px;
-  padding: 16px 24px;
+  padding: 16px 20px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   z-index: 9999;
-  animation: slideIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
 }
 
 @keyframes slideIn {
