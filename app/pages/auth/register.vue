@@ -69,7 +69,7 @@ const handleSubmit = async () => {
 
     console.log('Register response:', response) // Debug
 
-    if (response.success) {
+    if (response.status === 'success' || response.success) {
       success.value = true
       
       // ✅ Redirect ke login setelah 2 detik

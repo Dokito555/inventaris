@@ -27,6 +27,7 @@ const app = new Elysia({ prefix: '/api'})
     .use(teacherController)
 
     .onError(({code, error, set}) => {
+        console.error(`Backend Error [${code}]:`, error);
         if (code === 'VALIDATION') {
             set.status = 400
             return errorResponse('validation failed', 400, error.message)
