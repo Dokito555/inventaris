@@ -3,7 +3,6 @@
     <h2 class="page-title">Admin 1</h2>
 
     <div class="profile-content">
-      
       <div class="profile-avatar-wrapper">
         <img :src="admin.avatarUrl" alt="Admin Avatar" class="profile-avatar">
       </div>
@@ -14,9 +13,16 @@
       </div>
     </div>
 
-    <button class="logout-button" @click="handleLogout">
+    <div class="action-buttons">
+      <button class="edit-button" @click="handleEdit">
+        Edit Profile
+      </button>
+
+      <button class="logout-button" @click="handleLogout">
         Logout
-    </button>
+      </button>
+    </div>
+    
   </div>
 </template>
 
@@ -37,16 +43,22 @@ const admin = reactive({
     avatarUrl: '/admin.png'
 });
 
-// 3. Fungsi Logout
+// 3. Setup Router
 const router = useRouter();
 
+const handleEdit = () => {
+  console.log('Navigating to edit page');
+  router.push('/edit'); 
+};
+
+// 4. Fungsi Logout
 const handleLogout = () => {
-  
     console.log('User logged out');
     router.push('/auth/login'); 
 };
 </script>
 
-<style>
+<style scoped>
 @import "~/assets/css/profile.css";
+
 </style>

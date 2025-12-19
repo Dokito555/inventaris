@@ -5,7 +5,10 @@
     <div class="admin-section" @click="goToProfile">
       <span class="admin-name clickable">Admin 1</span>
       <div class="admin-avatar">
-        </div>
+        
+        <img src="/admin.png" alt="Admin" class="nav-avatar-img">
+
+      </div>
     </div>
   </div>
 </template>
