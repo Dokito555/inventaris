@@ -6,6 +6,7 @@ export async function createItem(data: CreateItemDTO) {
         data: {
             name: data.name,
             description: data.description,
+            image: data.image || null,
             quantity: data.quantity,
             available: true,
             createdAt: new Date(),
@@ -62,7 +63,7 @@ export async function updateItem(itemId: string, data: UpdateItemDTO) {
         data: {
             name: data.name,
             description: data.description,
-            image: data.image,
+            image: data.image || null,
             quantity: data.quantity,
             available: data.available
         },
