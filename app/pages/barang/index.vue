@@ -424,8 +424,9 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.table-row:hover {
-  background: #F9FAFB;
+.table-row.clickable:hover {
+  background: #ECFDF3; /* hijau terang lembut */
+  box-shadow: inset 4px 0 0 #264631;
 }
 
 .table-row:last-child {

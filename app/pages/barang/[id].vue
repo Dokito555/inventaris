@@ -103,7 +103,7 @@
                 <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
               </svg>
               <p>Klik untuk upload gambar</p>
-              <span>PNG, JPG, JPEG (max 5MB)</span>
+              <span>PNG, JPG, JPEG (max 1MB)</span>
             </div>
 
             <div v-else class="image-preview">
@@ -263,8 +263,8 @@ function handleFileUpload(e) {
     return showMessage('error', 'Format gambar tidak valid')
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    return showMessage('error', 'Ukuran gambar maksimal 5MB')
+  if (file.size > 1 * 1024 * 1024) {
+    return showMessage('error', 'Ukuran gambar maksimal 1MB')
   }
 
   const reader = new FileReader()
