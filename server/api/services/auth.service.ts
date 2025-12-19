@@ -43,12 +43,12 @@ export async function register(
     }
 
     const hashedPassword = await hashPassword(password);
-
+    console.log("DEBUG PRISMA DATA:", { email, name, phoneNumber });
     const user = await prisma.admin.create({
         data: {
             email,
             password: String(hashedPassword),
-            phoneNumber,
+            phoneNumber: phoneNumber,
             name,
         },
         select: {
