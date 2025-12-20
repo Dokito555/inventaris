@@ -96,7 +96,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 
 definePageMeta({
   layout: 'default',
-  title: 'List Guru'
+  title: 'Daftar Guru'
 })
 
 // State

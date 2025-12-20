@@ -52,27 +52,44 @@ export async function createBorrow(data: CreateBorrowDTO) {
 
 export async function returnItem(id: string) {
     console.log("return item received: ", id);
-    const exist = await prisma.borrow.findUnique({
-        where: {
-            id: id,
-        },
+
+    return await prisma.$transaction(async (tx) => {
+        const borrow = await tx.borrow.findUnique({
+            where: { id },
+        });
+
+        if (!borrow) {
+            throw new Error("borrow not found");
+        }
+
+        if (borrow.status === BorrowStatus.RETURNED) {
+            throw new Error("item already returned");
+        }
+
+        // ✅ 1. Tambah stok item
+        await tx.item.update({
+            where: {
+                id: borrow.itemId,
+            },
+            data: {
+                quantity: {
+                    increment: borrow.quantity,
+                },
+                available: true,
+            },
+        });
+
+        // ✅ 2. Update status borrow
+        const updatedBorrow = await tx.borrow.update({
+            where: { id },
+            data: {
+                status: BorrowStatus.RETURNED,
+                actual_return_time: new Date(),
+            },
+        });
+
+        return updatedBorrow;
     });
-
-    if (!exist) {
-        throw new Error("borrow not found");
-    }
-
-    const updated = await prisma.borrow.update({
-        where: {
-            id: id,
-        },
-        data: {
-            status: BorrowStatus.RETURNED,
-            actual_return_time: new Date(),
-        },
-    });
-
-    return updated;
 }
 
 export async function getAllBorrows(limit: number, page: number) {

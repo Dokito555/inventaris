@@ -87,7 +87,7 @@
     padding: 8px 23px;
 }
 
-.borrow-page .table-header-row {
+.borrow-page .table-header-row,.riwayat-page .table-header-row {
     display: grid;
     grid-template-columns: 0.3fr 1.2fr 0.7fr 1.2fr 1.7fr 2fr 1.5fr 0.7fr;
     gap: 10px;
@@ -104,7 +104,7 @@
     background: #FFFFFF;
 }
 
-.borrow-page .table-row {
+.borrow-page .table-row,.riwayat-page .table-row {
     display: grid;
     grid-template-columns:  0.3fr 1.2fr 0.7fr 1.2fr 1.7fr 2fr 1.5fr 0.7fr;
     gap: 10px;

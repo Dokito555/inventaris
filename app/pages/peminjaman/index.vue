@@ -60,7 +60,8 @@
           <div 
             v-for="(item, index) in paginatedBorrows" 
             :key="item.id" 
-            class="table-row"
+            class="table-row clickable"
+            @click="openReturnModal(item)"
           >
             <span>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</span>
             <span>{{ item.item?.name || '-' }}</span>
@@ -114,6 +115,39 @@
         </button>
       </div>
     </div>
+
+    <!-- modal -->
+    <Transition name="fade">
+    <div v-if="showReturnModal" class="modal-overlay">
+      <div class="modal-box">
+        <h3>Konfirmasi Pengembalian</h3>
+
+        <p>
+          Apakah barang berikut sudah dikembalikan?
+        </p>
+
+        <ul class="modal-info">
+          <li><b>Barang:</b> {{ selectedBorrow?.item?.name }}</li>
+          <li><b>Jumlah:</b> {{ selectedBorrow?.quantity }}</li>
+          <li><b>Peminjam:</b> {{ selectedBorrow?.teacher?.name }}</li>
+        </ul>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" @click="showReturnModal = false">
+            Batal
+          </button>
+          <button 
+            class="btn-confirm"
+            :disabled="returning"
+            @click="confirmReturn"
+          >
+            {{ returning ? 'Memproses...' : 'Konfirmasi Pengembalian' }}
+          </button>
+        </div>
+      </div>
+  </div>
+</Transition>
+
   </div>
 </template>
 
@@ -122,7 +156,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 
 definePageMeta({
   layout: 'default',
-  title: 'List Peminjaman Barang'
+  title: 'Daftar Peminjaman Barang'
 })
 
 // State
@@ -133,6 +167,8 @@ const borrows = ref([])
 const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 16
+const showReturnModal = ref(false)
+const selectedBorrow = ref(null)
 
 // Load data
 async function loadBorrows() {
@@ -155,7 +191,13 @@ async function loadBorrows() {
   }
 }
 
-// **TAMBAHKAN DI SINI**
+// modal returned
+function openReturnModal(borrow) {
+  if (borrow.status !== 'BORROWED') return
+  selectedBorrow.value = borrow
+  showReturnModal.value = true
+}
+
 watch(currentPage, () => {
   loadBorrows()
 })
@@ -165,14 +207,18 @@ watch(searchQuery, () => {
   loadBorrows()
 })
 
-// Load saat halaman dibuka
+
 onMounted(() => {
   loadBorrows()
 })
 
 // Filter berdasarkan search
 const filteredBorrows = computed(() => {
-  if (!searchQuery.value) return borrows.value
+  let data = borrows.value.filter(
+    item => item.status === 'BORROWED'
+  )
+
+  if (!searchQuery.value) return data
 
   const query = searchQuery.value.toLowerCase()
   return borrows.value.filter(item => {
@@ -265,6 +311,26 @@ function formatDate(date) {
   })
 }
 
+// pengembalian barang
+async function confirmReturn() {
+  if (!selectedBorrow.value) return
+
+  returning.value = true
+
+  try {
+    await $fetch(`/api/borrows/${selectedBorrow.value.id}/return`, {
+      method: 'PATCH'
+    })
+
+    showReturnModal.value = false
+    selectedBorrow.value = null
+    await loadBorrows() // refresh list
+  } catch (error) {
+    alert(error.data?.message || 'Gagal mengembalikan barang')
+  } finally {
+    returning.value = false
+  }
+}
 
 </script>
 
@@ -281,5 +347,62 @@ function formatDate(date) {
 .action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.table-row.clickable {
+  cursor: pointer;
+}
+
+.table-row.clickable:hover {
+  background: #ECFDF3; /* hijau terang lembut */
+  box-shadow: inset 4px 0 0 #264631;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90%;
+}
+
+.modal-info {
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+.modal-info li {
+  margin-bottom: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-confirm {
+  background: #264631;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+}
+
+.btn-cancel {
+  background: #E5E7EB;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
 }
 </style>

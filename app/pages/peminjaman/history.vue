@@ -39,8 +39,9 @@
             <span>Jumlah</span>
             <span>Status</span>
             <span>Tanggal Meminjam</span>
-            <span>Tanggal Dikembalikan</span>
+            <span>Tanggal Pengembalian</span>
             <span>Nama Peminjam</span>
+            <span>Kelas</span> 
           </div>
         </div>
 
@@ -67,6 +68,7 @@
             <span>{{ formatDate(item.borrowed_at) }}</span>
             <span>{{ formatDate(item.actual_return_time) }}</span>
             <span>{{ item.teacher?.name || '-' }}</span>
+            <span>{{ item.teacher?.class || '-' }}</span> 
           </div>
         </div>
       </div>
@@ -230,7 +232,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.riwayat-page {
+@import "~/assets/css/list-peminjaman.css";
+/* .riwayat-page {
   padding: 0;
 }
 
@@ -485,5 +488,5 @@ onMounted(() => {
   .table-row span {
     white-space: normal;
   }
-}
+} */
 </style>

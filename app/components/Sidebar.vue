@@ -10,37 +10,27 @@
 
     <ul class="sidebar-menu">
 
-      <li :class="{ active: isExact('/dashboard') }">
-        <NuxtLink to="/dashboard">Dashboard</NuxtLink>
-      </li>
+  <li :class="{ active: isExact('/dashboard') }">
+    <NuxtLink to="/dashboard">Dashboard</NuxtLink>
+  </li>
 
-      <li :class="{ active: isExact('/peminjaman') }">
-        <NuxtLink to="/peminjaman">List Peminjaman Barang</NuxtLink>
-      </li>
+  <li :class="{ active: route.path.startsWith('/peminjaman') && route.path !== '/peminjaman/history' }">
+    <NuxtLink to="/peminjaman">Peminjaman Barang</NuxtLink>
+  </li>
 
-      <li :class="{ active: isExact('/peminjaman/create') }">
-        <NuxtLink to="/peminjaman/create">CRUD Peminjaman</NuxtLink>
-      </li>
+  <li :class="{ active: isExact('/peminjaman/history') }">
+    <NuxtLink to="/peminjaman/history">Riwayat Peminjaman</NuxtLink>
+  </li>
 
-      <!-- DAFTAR BARANG (index saja) -->
-      <li :class="{ active: isExact('/barang') }">
-        <NuxtLink to="/barang">Daftar Barang</NuxtLink>
-      </li>
+  <li :class="{ active: route.path.startsWith('/barang') }">
+    <NuxtLink to="/barang">Manajemen Barang</NuxtLink>
+  </li>
 
-      <!-- CRUD BARANG (create + [id]) -->
-      <li :class="{ active: isBarangCrudActive() }">
-        <NuxtLink to="/barang/create">CRUD Barang</NuxtLink>
-      </li>
+  <li :class="{ active: isExact('/kelas') }">
+    <NuxtLink to="/kelas">Data Guru</NuxtLink>
+  </li>
 
-      <li :class="{ active: isExact('/peminjaman/history') }">
-        <NuxtLink to="/peminjaman/history">Riwayat Peminjaman</NuxtLink>
-      </li>
-
-      <li :class="{ active: isExact('/kelas') }">
-        <NuxtLink to="/kelas">List Guru</NuxtLink>
-      </li>
-
-    </ul>
+</ul>
   </div>
 </template>
 
