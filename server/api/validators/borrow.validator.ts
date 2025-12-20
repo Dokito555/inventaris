@@ -78,6 +78,6 @@ export const borrowQuery = t.Object({
         minimum: 10
     }),
     page: t.Number({
-        minimu1: 1
+        minimum: 1
     })
 })

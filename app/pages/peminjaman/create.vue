@@ -3,38 +3,47 @@
     <!-- Form Section -->
     <div class="form-container">
       <div class="form-header">
-        <h2>{{ isEditMode ? 'Edit Peminjaman' : 'Tambah Peminjaman Baru' }}</h2>
+        <h2>Tambah Peminjaman Baru</h2>
+        <p>Isi form di bawah untuk membuat peminjaman barang</p>
       </div>
 
       <form @submit.prevent="submitForm">
-        <!-- Nama Peminjam -->
+        <!-- Nama Peminjam (Teacher) -->
         <div class="form-group">
-          <label for="peminjam">Nama Peminjam</label>
+          <label for="teacher">
+            Nama Peminjam (Guru) 
+            <span class="required">*</span>
+          </label>
           <select
-            id="peminjam"
-            v-model="form.user_id"
+            id="teacher"
+            v-model="form.teacherId"
             required
-            :disabled="isEditMode"
+            :disabled="loading"
           >
-            <option value="" disabled>Pilih Peminjam</option>
+            <option value="" disabled>Pilih Guru</option>
             <option 
-              v-for="user in users" 
-              :key="user.id" 
-              :value="user.id"
+              v-for="teacher in teachers" 
+              :key="teacher.id" 
+              :value="teacher.id"
             >
-              {{ user.name }} - {{ user.role }}
+              {{ teacher.name }} - {{ teacher.class }}
             </option>
           </select>
+          <p class="help-text">Pilih guru yang akan meminjam barang</p>
         </div>
 
         <!-- Barang yang Dipinjam -->
         <div class="form-group">
-          <label for="barang">Barang yang Dipinjam</label>
+          <label for="item">
+            Barang yang Dipinjam 
+            <span class="required">*</span>
+          </label>
           <select
-            id="barang"
-            v-model="form.item_id"
+            id="item"
+            v-model="form.itemId"
             required
-            :disabled="isEditMode"
+            :disabled="loading"
+            @change="onItemChange"
           >
             <option value="" disabled>Pilih Barang</option>
             <option 
@@ -46,17 +55,21 @@
               {{ item.name }} (Tersedia: {{ item.quantity }})
             </option>
           </select>
+          <p class="help-text">Pilih barang yang tersedia</p>
         </div>
 
         <!-- Jumlah Dipinjam -->
         <div class="form-group">
-          <label for="quantity">Jumlah Dipinjam</label>
+          <label for="quantity">
+            Jumlah Dipinjam 
+            <span class="required">*</span>
+          </label>
           <div class="quantity-control">
             <button 
               type="button" 
               class="qty-btn"
               @click="decrementQuantity"
-              :disabled="form.quantity <= 1"
+              :disabled="form.quantity <= 1 || loading"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
@@ -69,103 +82,33 @@
               :max="maxQuantity"
               min="1"
               required
+              readonly
             >
             <button 
               type="button" 
               class="qty-btn"
               @click="incrementQuantity"
-              :disabled="form.quantity >= maxQuantity"
+              :disabled="form.quantity >= maxQuantity || loading"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
               </svg>
             </button>
           </div>
-          <small class="hint-text">
-            Maksimal: {{ maxQuantity }} barang
-          </small>
+          <p class="help-text">Maksimal: {{ maxQuantity }} barang</p>
         </div>
 
-        <!-- Tanggal Peminjaman -->
+        <!-- Catatan -->
         <div class="form-group">
-          <label for="borrow_date">Tanggal Peminjaman</label>
-          <input
-            id="borrow_date"
-            type="date"
-            v-model="form.borrow_date"
-            required
-            :disabled="isEditMode"
-          >
-        </div>
-
-        <!-- Tanggal Pengembalian -->
-        <div class="form-group">
-          <label for="return_date">Tanggal Pengembalian</label>
-          <input
-            id="return_date"
-            type="date"
-            v-model="form.return_date"
-            required
-            :min="form.borrow_date"
-          >
-        </div>
-
-        <!-- Status Peminjaman -->
-        <div class="form-group">
-          <label>Status Peminjaman</label>
-          <div class="status-buttons">
-            <button 
-              type="button"
-              class="status-btn"
-              :class="{ active: form.status === 'pending' }"
-              @click="form.status = 'pending'"
-            >
-              Menunggu
-            </button>
-            <button 
-              type="button"
-              class="status-btn"
-              :class="{ active: form.status === 'approved' }"
-              @click="form.status = 'approved'"
-            >
-              Disetujui
-            </button>
-            <button 
-              type="button"
-              class="status-btn"
-              :class="{ active: form.status === 'borrowed' }"
-              @click="form.status = 'borrowed'"
-            >
-              Dipinjam
-            </button>
-            <button 
-              type="button"
-              class="status-btn"
-              :class="{ active: form.status === 'returned' }"
-              @click="form.status = 'returned'"
-            >
-              Dikembalikan
-            </button>
-            <button 
-              type="button"
-              class="status-btn"
-              :class="{ active: form.status === 'rejected' }"
-              @click="form.status = 'rejected'"
-            >
-              Ditolak
-            </button>
-          </div>
-        </div>
-
-        <!-- Keterangan -->
-        <div class="form-group">
-          <label for="notes">Keterangan (Opsional)</label>
+          <label for="notes">Catatan (Opsional)</label>
           <textarea
             id="notes"
             v-model="form.notes"
             placeholder="Tambahkan catatan jika diperlukan..."
             rows="4"
+            :disabled="loading"
           ></textarea>
+          <p class="help-text">Contoh: Untuk praktikum kelas 10 TKJ</p>
         </div>
 
         <!-- Form Actions -->
@@ -173,53 +116,57 @@
           <button 
             type="button" 
             class="btn-cancel"
-            @click="navigateTo('/peminjaman')"
+            @click="handleCancel"
+            :disabled="loading"
           >
             Batal
           </button>
           <button 
-            v-if="isEditMode && form.status === 'pending'"
-            type="button" 
-            class="btn-delete"
-            @click="confirmDelete"
-          >
-            Hapus
-          </button>
-          <button 
             type="submit" 
             class="btn-submit"
-            :disabled="loading"
+            :disabled="loading || !isFormValid"
           >
-            {{ loading ? 'Menyimpan...' : (isEditMode ? 'Update' : 'Simpan') }}
+            <span v-if="loading" class="loading-content">
+              <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Menyimpan...
+            </span>
+            <span v-else>Simpan Peminjaman</span>
           </button>
         </div>
       </form>
     </div>
 
     <!-- Success/Error Message -->
-    <div v-if="message.show" :class="['message', message.type]">
-      {{ message.text }}
-    </div>
+    <Transition name="fade">
+      <div v-if="message.show" :class="['message', message.type]">
+        <span class="message-icon">
+          {{ message.type === 'success' ? '✓' : '⚠️' }}
+        </span>
+        <span class="message-text">{{ message.text }}</span>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-
-const route = useRoute()
-const router = useRouter()
 
 definePageMeta({
   layout: 'default',
-  title: 'Peminjaman Barang'
+  title: 'Tambah Peminjaman'
+})
+
+onMounted(() => {
+  fetchData()
 })
 
 // State
 const loading = ref(false)
-const users = ref([])
+const teachers = ref([])
 const items = ref([])
-const isEditMode = ref(false)
 const message = reactive({
   show: false,
   type: 'success',
@@ -227,24 +174,27 @@ const message = reactive({
 })
 
 const form = reactive({
-  user_id: '',
-  item_id: '',
+  teacherId: '',
+  itemId: '',
   quantity: 1,
-  borrow_date: '',
-  return_date: '',
-  status: 'pending',
   notes: ''
 })
 
 // Computed Properties
 const maxQuantity = computed(() => {
-  if (!form.item_id) return 1
-  const selectedItem = items.value.find(item => item.id === form.item_id)
+  if (!form.itemId) return 1
+  const selectedItem = items.value.find(item => item.id === form.itemId)
   return selectedItem ? selectedItem.quantity : 1
 })
 
 const availableItems = computed(() => {
-  return items.value.filter(item => item.status === 'available')
+  return items.value.filter(item => item.available && item.quantity > 0)
+})
+
+const isFormValid = computed(() => {
+  return form.teacherId && 
+         form.itemId && 
+         form.quantity >= 1
 })
 
 // Quantity controls
@@ -260,95 +210,147 @@ function decrementQuantity() {
   }
 }
 
+function onItemChange() {
+  form.quantity = 1
+}
+
 // Fetch data
-async function fetchUsers() {
+async function fetchData() {
+  await Promise.all([
+    fetchTeachers(),
+    fetchItems()
+  ])
+}
+
+async function fetchTeachers() {
   try {
-    const response = await $fetch('/api/users')
-    users.value = response.data || []
+    const response = await $fetch('/api/teachers')
+    
+    if (response.success && Array.isArray(response.data)) {
+      teachers.value = response.data
+    } else if (Array.isArray(response.teachers)) {
+      teachers.value = response.teachers
+    } else {
+      showMessage('error', 'Format data guru tidak valid')
+    }
   } catch (error) {
-    console.error('Error fetching users:', error)
+    console.error('Error fetching teachers:', error)
+    showMessage('error', 'Gagal memuat data guru')
   }
 }
 
 async function fetchItems() {
   try {
-    const response = await $fetch('/api/items')
-    items.value = response.data || []
+    const response = await $fetch('/api/items?page=1&limit=1000')
+    
+    if (response.items) {
+      items.value = response.items
+    } else {
+      showMessage('error', 'Gagal memuat data barang')
+    }
   } catch (error) {
     console.error('Error fetching items:', error)
-  }
-}
-
-async function fetchBorrowing(id) {
-  try {
-    const response = await $fetch(`/api/borrowings/${id}`)
-    Object.assign(form, response.data)
-  } catch (error) {
-    console.error('Error fetching borrowing:', error)
-    showMessage('error', 'Gagal memuat data peminjaman')
+    showMessage('error', 'Gagal memuat data barang')
   }
 }
 
 // Submit form
 async function submitForm() {
+  // Validasi
+  if (!form.teacherId || !form.itemId) {
+    showMessage('error', 'Mohon lengkapi semua field yang wajib diisi')
+    return
+  }
+
+  if (form.quantity < 1 || form.quantity > maxQuantity.value) {
+    showMessage('error', `Jumlah harus antara 1 dan ${maxQuantity.value}`)
+    return
+  }
+
+  // Validasi tanggal
+  // const borrowedDate = new Date(form.borrowed_at)
+  // const returnDate = new Date(form.return_date)
+  
+  // if (returnDate < borrowedDate) {
+  //   showMessage('error', 'Waktu pengembalian tidak boleh lebih awal dari waktu peminjaman')
+  //   return
+  // }
+
   loading.value = true
 
   try {
-    const url = isEditMode.value 
-      ? `/api/borrowings/${route.params.id}`
-      : '/api/borrowings'
-    
-    const method = isEditMode.value ? 'PUT' : 'POST'
-
-    const response = await $fetch(url, {
-      method,
-      body: form
+    console.log('Submitting borrow...', {
+      teacherId: form.teacherId,
+      itemId: form.itemId,
+      quantity: form.quantity,
+      notes: form.notes
     })
 
+    const response = await $fetch('/api/borrows', {
+      method: 'POST',
+      body: {
+        teacher_id: form.teacherId,
+        item_id: form.itemId,
+        quantity: form.quantity,
+        notes: form.notes || null
+      }
+    })
+
+    console.log('Response:', response)
+
     if (response.success) {
-      showMessage('success', 
-        isEditMode.value 
-          ? 'Peminjaman berhasil diupdate!' 
-          : 'Peminjaman berhasil dibuat!'
-      )
+      showMessage('success', 'Peminjaman berhasil dibuat!')
       
-      // Redirect setelah 2 detik
+      resetForm()
+      
       setTimeout(() => {
         navigateTo('/peminjaman')
       }, 2000)
+    } else {
+      showMessage('error', response.message || 'Gagal membuat peminjaman')
     }
   } catch (error) {
-    console.error('Error saving borrowing:', error)
-    showMessage('error', error.data?.message || 
-      (isEditMode.value ? 'Gagal update peminjaman' : 'Gagal membuat peminjaman')
-    )
+    console.error('Error creating borrow:', error)
+    
+    let errorMessage = 'Gagal membuat peminjaman'
+    
+    if (error.data?.message) {
+      errorMessage = error.data.message
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    
+    // Handle specific errors
+    if (error.status === 422 || error.statusCode === 422) {
+      errorMessage = 'Data yang dikirim tidak valid. Periksa kembali form Anda.'
+    }
+    
+    showMessage('error', errorMessage)
   } finally {
     loading.value = false
   }
 }
 
-// Delete borrowing
-async function deleteBorrowing() {
-  try {
-    const response = await $fetch(`/api/borrowings/${route.params.id}`, {
-      method: 'DELETE'
-    })
-
-    if (response.success) {
-      showMessage('success', 'Peminjaman berhasil dihapus!')
-      setTimeout(() => {
-        navigateTo('/peminjaman')
-      }, 2000)
-    }
-  } catch (error) {
-    console.error('Error deleting borrowing:', error)
-    showMessage('error', 'Gagal menghapus peminjaman')
-  }
+// Reset form
+function resetForm() {  
+  form.teacherId = ''
+  form.itemId = ''
+  form.quantity = 1
+  form.notes = ''
 }
 
-function confirmDelete() {
-  if (confirm('Apakah Anda yakin ingin menghapus peminjaman ini?')) {
-    deleteBorrowing()
+// Handle cancel
+function handleCancel() {
+  if (loading.value) return
+  
+  const hasData = form.teacherId || form.itemId || form.notes
+  
+  if (hasData) {
+    if (confirm('Data yang Anda masukkan akan hilang. Yakin ingin membatalkan?')) {
+      navigateTo('/peminjaman')
+    }
+  } else {
+    navigateTo('/peminjaman')
   }
 }
 
@@ -360,41 +362,21 @@ function showMessage(type, text) {
 
   setTimeout(() => {
     message.show = false
-  }, 3000)
+  }, 4000)
 }
-
-// Initialize
-onMounted(async () => {
-  await Promise.all([fetchUsers(), fetchItems()])
-  
-  // Set default dates
-  const today = new Date().toISOString().split('T')[0]
-  const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    .toISOString().split('T')[0]
-  
-  form.borrow_date = today
-  form.return_date = nextWeek
-
-  // Check if edit mode
-  if (route.params.id) {
-    isEditMode.value = true
-    await fetchBorrowing(route.params.id)
-  }
-})
 </script>
 
 <style scoped>
-/* Main Container */
 .crud-peminjaman-page {
   padding: 0;
   max-width: 1112px;
 }
 
-/* Form Container */
 .form-container {
   background: #FFFFFF;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
@@ -407,53 +389,61 @@ onMounted(async () => {
   font-size: 24px;
   font-weight: 600;
   color: #1F2937;
+  margin: 0 0 8px 0;
+}
+
+.form-header p {
+  font-size: 14px;
+  color: #6B7280;
   margin: 0;
 }
 
-/* Form Group */
 .form-group {
   margin-bottom: 24px;
 }
 
 .form-group label {
   display: block;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #1F2937;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
   margin-bottom: 8px;
 }
 
+.required {
+  color: #EF4444;
+  margin-left: 2px;
+}
+
 .form-group select,
-.form-group input[type="text"],
-.form-group input[type="date"],
 .form-group input[type="number"],
+.form-group input[type="datetime-local"],
 .form-group textarea {
   width: 100%;
   padding: 12px 16px;
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
   color: #1F2937;
   background: #FFFFFF;
   border: 1px solid #D1D5DB;
   border-radius: 8px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .form-group select:focus,
-.form-group input[type="text"]:focus,
-.form-group input[type="date"]:focus,
-.form-group input[type="number"]:focus,
+.form-group input:focus,
 .form-group textarea:focus {
   border-color: #264631;
+  box-shadow: 0 0 0 3px rgba(38, 70, 49, 0.1);
 }
 
 .form-group select:disabled,
-.form-group input:disabled {
+.form-group input:disabled,
+.form-group textarea:disabled {
   background: #F9FAFB;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .form-group textarea {
@@ -461,14 +451,13 @@ onMounted(async () => {
   min-height: 100px;
 }
 
-.hint-text {
+.help-text {
   display: block;
-  margin-top: 4px;
+  margin-top: 6px;
   color: #6B7280;
-  font-size: 14px;
+  font-size: 12px;
 }
 
-/* Quantity Control */
 .quantity-control {
   display: inline-flex;
   align-items: center;
@@ -488,7 +477,7 @@ onMounted(async () => {
   border: none;
   cursor: pointer;
   color: #374151;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .qty-btn:hover:not(:disabled) {
@@ -508,7 +497,9 @@ onMounted(async () => {
   border: none;
   border-left: 1px solid #D1D5DB;
   border-right: 1px solid #D1D5DB;
+  border-radius: 0;
   padding: 0;
+  margin: 0;
   -moz-appearance: textfield;
 }
 
@@ -518,67 +509,11 @@ onMounted(async () => {
   margin: 0;
 }
 
-/* Status Buttons */
-.status-buttons {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.quantity-control input[type="number"]:focus {
+  box-shadow: none;
+  border-color: #D1D5DB;
 }
 
-.status-btn {
-  padding: 12px 24px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: #FFFFFF;
-  color: #374151;
-  border: 1px solid #E5E7EB;
-}
-
-.status-btn:hover {
-  border-color: #264631;
-}
-
-.status-btn.active {
-  font-weight: 500;
-  border-width: 1px;
-}
-
-/* Status colors */
-.status-btn.active:nth-child(1) { /* pending */
-  background: #FEF3C7;
-  color: #92400E;
-  border-color: #FEF3C7;
-}
-
-.status-btn.active:nth-child(2) { /* approved */
-  background: #264631;
-  color: #FFFFFF;
-  border-color: #264631;
-}
-
-.status-btn.active:nth-child(3) { /* borrowed */
-  background: #DBEAFE;
-  color: #1E40AF;
-  border-color: #DBEAFE;
-}
-
-.status-btn.active:nth-child(4) { /* returned */
-  background: #D1FAE5;
-  color: #065F46;
-  border-color: #D1FAE5;
-}
-
-.status-btn.active:nth-child(5) { /* rejected */
-  background: #FEE2E2;
-  color: #991B1B;
-  border-color: #FEE2E2;
-}
-
-/* Form Actions */
 .form-actions {
   display: flex;
   gap: 16px;
@@ -589,16 +524,18 @@ onMounted(async () => {
 }
 
 .btn-cancel,
-.btn-delete,
 .btn-submit {
   padding: 12px 24px;
   font-family: 'Poppins', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-cancel {
@@ -607,59 +544,67 @@ onMounted(async () => {
   border: 1px solid #D1D5DB;
 }
 
-.btn-cancel:hover {
+.btn-cancel:hover:not(:disabled) {
   background: #F9FAFB;
   border-color: #9CA3AF;
-}
-
-.btn-delete {
-  background: #FEE2E2;
-  color: #DC2626;
-  border: 1px solid #FCA5A5;
-}
-
-.btn-delete:hover {
-  background: #FECACA;
-  border-color: #F87171;
 }
 
 .btn-submit {
   background: #264631;
   color: #FFFFFF;
-  min-width: 120px;
+  min-width: 160px;
 }
 
 .btn-submit:hover:not(:disabled) {
   background: #1a3322;
 }
 
-.btn-submit:disabled {
+.btn-submit:disabled,
+.btn-cancel:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Message */
+.loading-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner-icon {
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .message {
   position: fixed;
   top: 24px;
   right: 24px;
-  padding: 16px 24px;
+  padding: 16px 20px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   z-index: 9999;
-  animation: slideIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+.message-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.message-text {
+  flex: 1;
 }
 
 .message.success {
@@ -674,7 +619,21 @@ onMounted(async () => {
   border: 1px solid #FCA5A5;
 }
 
-/* Responsive */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
 @media (max-width: 768px) {
   .form-container {
     padding: 20px;
@@ -685,7 +644,6 @@ onMounted(async () => {
   }
 
   .btn-cancel,
-  .btn-delete,
   .btn-submit {
     width: 100%;
   }
@@ -694,15 +652,6 @@ onMounted(async () => {
     left: 16px;
     right: 16px;
     top: 16px;
-  }
-  
-  .status-buttons {
-    gap: 8px;
-  }
-  
-  .status-btn {
-    flex: 1;
-    min-width: calc(50% - 4px);
   }
 }
 </style>
