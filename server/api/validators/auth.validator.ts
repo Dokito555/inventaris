@@ -43,4 +43,5 @@ export const updateRequest = t.Object({
     minLength: 8,
     error: "password must be at least 8 characters",
   })),
+  image: t.Optional(t.String())
 });

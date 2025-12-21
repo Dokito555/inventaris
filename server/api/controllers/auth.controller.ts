@@ -120,6 +120,8 @@ export const authController = (app: Elysia) => {
         return errorResponse('Unauthorized')
     }
 
+    console.log('Update body:', body)
+
     try {
         const updatedUser = await updateUser(user.id, body)
         return successResponse(updatedUser, 'Profile berhasil diperbarui')

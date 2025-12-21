@@ -13,6 +13,7 @@ model Admin {
   email       String    @unique @db.VarChar(255)
   password    String
   phoneNumber String    @unique @db.VarChar(255)
+  image       String?   @db.Text
   teleId      String?   @unique @db.VarChar(255)
   createdAt   DateTime? @default(now()) @db.Timestamptz(6)
   sessions    Session[]

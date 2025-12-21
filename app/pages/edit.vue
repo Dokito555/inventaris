@@ -179,13 +179,13 @@ onMounted(async () => {
     // Populate Form
     form.name = data.name || ''
     form.email = data.email || ''
-    imagePreview.value = data.avatarUrl || '/admin.png'
+    imagePreview.value = data.image || '/admin.png'
     
     // Simpan initial state
     Object.assign(initialData, {
         name: data.name || '',
         email: data.email || '',
-        avatarUrl: data.avatarUrl || '/admin.png'
+        avatarUrl: data.image || '/admin.png'
     })
   } catch (e) {
     console.error('Failed to fetch profile', e)
@@ -261,6 +261,9 @@ async function submitForm() {
     if (form.name !== initialData.name) updateData.name = form.name
     if (form.email !== initialData.email) updateData.email = form.email
     if (form.password) updateData.password = form.password
+    if (form.imageBase64) {
+        updateData.image = form.imageBase64
+    }
 
     console.log('Updating profile...', updateData)
 
@@ -269,6 +272,8 @@ async function submitForm() {
       body: updateData,
       credentials: 'include'
     })
+
+    console.log('Update response:', res)
 
     showMessage('success', 'Profile berhasil diperbarui!')
     setTimeout(() => {

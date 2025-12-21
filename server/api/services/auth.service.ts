@@ -126,12 +126,15 @@ export async function getUserById(userId: string) {
     return user;
 }
 
-export async function updateUser(userId: string, data: { name?: string; email?: string; password?: string }) {
+export async function updateUser(userId: string, data: { name?: string; email?: string; password?: string; image?: string }) {
     const updateData: any = {}
 
     if (data.name) updateData.name = data.name
     if (data.email) updateData.email = data.email
+    if (data.image) updateData.image = data.image
     if (data.password) updateData.password = await hashPassword(data.password)
+
+    console.log('Updating user with data:', updateData)
 
     const user = await prisma.admin.update({
         where: { id: userId },
@@ -140,9 +143,12 @@ export async function updateUser(userId: string, data: { name?: string; email?: 
             id: true,
             email: true,
             name: true,
-            phoneNumber: true
+            phoneNumber: true,
+            image: true,
         }
     })
+
+    console.log('Updated user:', user)
 
     return user
 }
