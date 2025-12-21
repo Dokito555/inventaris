@@ -21,11 +21,30 @@ const handleSubmit = async () => {
   error.value = ''
 
   try {
-    // TODO: ganti dengan request ke API login kamu
-    await new Promise(resolve => setTimeout(resolve, 800))
-    router.push('/dashboard')
+    const res = await $fetch('/api/auth/login', {
+      method: 'POST',
+      body: {
+        email: form.email,
+        password: form.password
+      },
+      credentials: 'include'
+    })
+
+    // successful login should return user data
+    if (res && (res.status === 'success' || res.success)) {
+      router.push('/dashboard')
+      return
+    }
+
+    error.value = res.message || 'Email atau password salah.'
   } catch (e) {
-    error.value = 'Email atau password salah.'
+    if (e instanceof Error) {
+      error.value = e.message
+    } else if (typeof e === 'object' && e !== null && 'data' in e && e.data && typeof e.data === 'object' && 'message' in e.data && typeof e.data.message === 'string') {
+      error.value = e.data.message
+    } else {
+      error.value = 'Email atau password salah.'
+    }
   } finally {
     loading.value = false
   }

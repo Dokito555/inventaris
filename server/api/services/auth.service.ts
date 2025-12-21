@@ -118,8 +118,31 @@ export async function getUserById(userId: string) {
         select: {
         id: true,
         email: true,
+        name: true,
+        phoneNumber: true,
         },
     });
 
     return user;
+}
+
+export async function updateUser(userId: string, data: { name?: string; email?: string; password?: string }) {
+    const updateData: any = {}
+
+    if (data.name) updateData.name = data.name
+    if (data.email) updateData.email = data.email
+    if (data.password) updateData.password = await hashPassword(data.password)
+
+    const user = await prisma.admin.update({
+        where: { id: userId },
+        data: updateData,
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            phoneNumber: true
+        }
+    })
+
+    return user
 }

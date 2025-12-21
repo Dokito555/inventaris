@@ -27,35 +27,52 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
-import { useRouter } from 'vue-router'; 
+import { reactive, onMounted } from 'vue'
+import { useRouter } from '#imports'
 
-// 1. Definisikan Metadata Halaman
 definePageMeta({
   layout: 'default',
   title: 'Profile Admin'
 })
 
-// 2. Data Admin 
 const admin = reactive({
-    name: 'Riki Meida',
-    email: 'rikimeida@gmail.com',
-    avatarUrl: '/admin.png'
-});
+  name: '',
+  email: '',
+  avatarUrl: '/admin.png'
+})
 
-// 3. Setup Router
-const router = useRouter();
+const router = useRouter()
 
 const handleEdit = () => {
-  console.log('Navigating to edit page');
-  router.push('/edit'); 
-};
+  router.push('/edit')
+}
 
-// 4. Fungsi Logout
-const handleLogout = () => {
-    console.log('User logged out');
-    router.push('/auth/login'); 
-};
+const handleLogout = async () => {
+  try {
+    await $fetch('/api/auth/logout', { method: 'DELETE', credentials: 'include' })
+  } catch (e) {
+    console.error('Logout failed', e)
+  }
+  router.push('/auth/login')
+}
+
+onMounted(async () => {
+  try {
+    const res = await $fetch('/api/auth/me', { credentials: 'include' })
+    const data = res?.data ?? res
+    if (!data) {
+      router.push('/auth/login')
+      return
+    }
+
+    admin.name = data.name ?? data.email ?? ''
+    admin.email = data.email ?? ''
+    if (data.avatarUrl) admin.avatarUrl = data.avatarUrl
+  } catch (e) {
+    console.error('Failed to fetch profile', e)
+    router.push('/auth/login')
+  }
+})
 </script>
 
 <style scoped>

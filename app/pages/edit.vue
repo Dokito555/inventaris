@@ -166,26 +166,31 @@ const form = reactive({
   imageBase64: null
 })
 
-// Lifecycle: Ambil data user saat ini (Simulasi)
-onMounted(() => {
-  // TODO: Ganti ini dengan API call sesungguhnya, misal: await $fetch('/api/user/me')
-  const mockUserData = {
-    name: 'Riki Meida',
-    email: 'rikimeida@gmail.com',
-    avatarUrl: '/admin.png' // Pastikan file ini ada di folder public
-  }
+// Lifecycle: Ambil data user saat ini
+onMounted(async () => {
+  try {
+    const res = await $fetch('/api/auth/me', { credentials: 'include' })
+    const data = res?.data ?? res
+    if (!data) {
+      router.push('/auth/login')
+      return
+    }
 
-  // Populate Form
-  form.name = mockUserData.name
-  form.email = mockUserData.email
-  imagePreview.value = mockUserData.avatarUrl
-  
-  // Simpan initial state
-  Object.assign(initialData, {
-      name: mockUserData.name,
-      email: mockUserData.email,
-      avatarUrl: mockUserData.avatarUrl
-  })
+    // Populate Form
+    form.name = data.name || ''
+    form.email = data.email || ''
+    imagePreview.value = data.avatarUrl || '/admin.png'
+    
+    // Simpan initial state
+    Object.assign(initialData, {
+        name: data.name || '',
+        email: data.email || '',
+        avatarUrl: data.avatarUrl || '/admin.png'
+    })
+  } catch (e) {
+    console.error('Failed to fetch profile', e)
+    router.push('/auth/login')
+  }
 })
 
 // Computed Validation
@@ -252,30 +257,25 @@ async function submitForm() {
   loading.value = true
 
   try {
-    console.log('Updating profile...', {
-        name: form.name,
-        email: form.email,
-        password: form.password ? 'Updated' : 'Unchanged',
-        avatarChanged: !!form.imageBase64
+    const updateData = {}
+    if (form.name !== initialData.name) updateData.name = form.name
+    if (form.email !== initialData.email) updateData.email = form.email
+    if (form.password) updateData.password = form.password
+
+    console.log('Updating profile...', updateData)
+
+    const res = await $fetch('/api/auth/me', {
+      method: 'PUT',
+      body: updateData,
+      credentials: 'include'
     })
 
-    // Simulasi API Call delay
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // --- TEMPAT INTEGRASI API ---
-    // const response = await $fetch('/api/profile/update', { 
-    //    method: 'PUT', 
-    //    body: { ...form } 
-    // })
-
-    showMessage('success', 'Profil berhasil diperbarui!')
-
-    // Redirect kembali ke halaman profile setelah sukses
+    showMessage('success', 'Profile berhasil diperbarui!')
     setTimeout(() => {
-        router.push('/profile') // Sesuaikan dengan route halaman profil Anda
-    }, 1500)
-
+      router.push('/profile')
+    }, 2000)
   } catch (error) {
+    console.error('Update failed', error)
     showMessage('error', 'Gagal memperbarui profil.')
   } finally {
     loading.value = false

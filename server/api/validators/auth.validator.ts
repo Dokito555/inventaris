@@ -29,3 +29,18 @@ export const loginRequest = t.Object({
     error: "password must be a least 8 characters",
   }),
 });
+
+export const updateRequest = t.Object({
+  name: t.Optional(t.String({
+    minLength: 2,
+    error: 'invalid name'
+  })),
+  email: t.Optional(t.String({
+    format: "email",
+    error: "invalid email format",
+  })),
+  password: t.Optional(t.String({
+    minLength: 8,
+    error: "password must be at least 8 characters",
+  })),
+});

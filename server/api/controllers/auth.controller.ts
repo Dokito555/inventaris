@@ -1,8 +1,8 @@
 import { Elysia, t } from 'elysia'
-import { register, login } from '../services/auth.service'
+import { register, login, getUserById, updateUser } from '../services/auth.service'
 import { errorResponse, successResponse } from '../utils/response'
 import { createSession, deleteSession } from '../services/session.service'
-import { loginRequest, registerRequest } from '../validators/auth.validator'
+import { loginRequest, registerRequest, updateRequest } from '../validators/auth.validator'
 
 export const authController = (app: Elysia) => {
     return app.group('/auth', (app) => 
@@ -96,6 +96,41 @@ export const authController = (app: Elysia) => {
         }, {
             body: loginRequest
         })
+
+        // server/api/controllers/auth.controller.ts
+
+.get('/me', async (ctx) => {
+    const { user, set } = ctx as any
+
+    if (!user) {
+        set.status = 401
+        return errorResponse('Unauthorized')
+    }
+
+    // Ambil detail lengkap dari database berdasarkan ID dari session
+    const adminData = await getUserById(user.id)
+    return successResponse(adminData, 'Data profile berhasil diambil')
+})
+
+.put('/me', async (ctx) => {
+    const { user, set, body } = ctx as any
+
+    if (!user) {
+        set.status = 401
+        return errorResponse('Unauthorized')
+    }
+
+    try {
+        const updatedUser = await updateUser(user.id, body)
+        return successResponse(updatedUser, 'Profile berhasil diperbarui')
+    } catch (error) {
+        console.error('Update error:', error)
+        set.status = 500
+        return errorResponse('Gagal memperbarui profile')
+    }
+}, {
+    body: updateRequest
+})
         
         .delete('/logout', async ({cookie: {session}, set}) => {
             try {
