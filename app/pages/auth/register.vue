@@ -102,14 +102,14 @@ const handleSubmit = async () => {
 
 <template>
   <div>
-    <h1 style="font-size:2.25rem;font-weight:600;color:#111827;margin-bottom:0.25rem;">
+    <h1 style="padding-top: 1rem;font-size:2.25rem;font-weight:600;color:#111827;margin-bottom:0.25rem;">
       Sign up
     </h1>
     <p style="font-size:0.9rem;color:#4b5563;">
       Daftar akun baru untuk menggunakan BookingSystem.
     </p>
 
-    <form style="margin-top:2rem;" @submit.prevent="handleSubmit">
+    <form style="margin-top:1rem;" @submit.prevent="handleSubmit">
       <!-- Success Message -->
       <div
         v-if="success"
@@ -155,7 +155,7 @@ const handleSubmit = async () => {
 
       <!-- Phone -->
       <div style="margin-bottom:1rem;">
-        <label class="auth-form-label">Nomor Telepon</label>
+        <label class="auth-form-label">Nomor Telepon (WhatsApp/Telegram)</label>
         <input
           v-model="form.phone_number"
           type="tel"
@@ -208,7 +208,7 @@ const handleSubmit = async () => {
       </div>
 
       <!-- Confirm Password -->
-      <div style="margin-bottom:1.5rem;">
+      <div style="margin-bottom:0.2rem;">
         <label class="auth-form-label">Konfirmasi password</label>
         <div style="position:relative;">
           <input

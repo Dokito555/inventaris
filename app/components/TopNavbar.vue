@@ -3,11 +3,12 @@
     <h4>{{ pageTitle }}</h4>
 
     <div class="admin-section" @click="goToProfile">
-      <span class="admin-name clickable">{{ admin.name }}</span>
+      <span class="active-symbol">●
+        <span class="admin-name clickable">{{ admin.name }}
+      </span>
+      </span>
       <div class="admin-avatar">
-        
         <img :src="imageSrc" :key="admin.image" alt="Admin" class="nav-avatar-img">
-
       </div>
     </div>
   </div>
@@ -98,5 +99,12 @@ onMounted(async () => {
 
 .admin-section {
   cursor: pointer;
+}
+
+.active-symbol {
+  color: rgb(40, 225, 40); /* Ganti warna atau simbol sesuai keinginan */
+  font-weight: bold;
+  margin-right: 5px; /* Memberikan jarak antara simbol dan nama */
+  font-size: 20px; /* Ukuran font lebih besar */
 }
 </style>
