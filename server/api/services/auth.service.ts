@@ -120,6 +120,7 @@ export async function getUserById(userId: string) {
         email: true,
         name: true,
         phoneNumber: true,
+        image: true
         },
     });
 

@@ -3,10 +3,10 @@
     <h4>{{ pageTitle }}</h4>
 
     <div class="admin-section" @click="goToProfile">
-      <span class="admin-name clickable">Admin 1</span>
+      <span class="admin-name clickable">{{ admin.name }}</span>
       <div class="admin-avatar">
         
-        <img src="/admin.png" alt="Admin" class="nav-avatar-img">
+        <img :src="imageSrc" :key="admin.image" alt="Admin" class="nav-avatar-img">
 
       </div>
     </div>
@@ -14,8 +14,8 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router' 
-import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { reactive, computed, onMounted } from 'vue'
 
 const route = useRoute()
 const router = useRouter() 
@@ -36,6 +36,51 @@ const pageTitle = computed(() => {
 const goToProfile = () => {
   router.push('/profile')
 }
+
+const admin = reactive({
+  name: '',
+  email: '',
+  image: ''
+})
+
+const imageSrc = computed(() => {
+  if (!admin.image) return '/admin.png'
+  
+  // Jika sudah ada format data:image di database, langsung return
+  if (admin.image.startsWith('data:image')) {
+    return admin.image
+  }
+  
+  // Jika hanya string mentah, asumsikan itu base64 PNG/JPG
+  return `data:image/png;base64,${admin.image}`
+})
+
+onMounted(async () => {
+  try {
+    const res = await $fetch('/api/auth/me', { credentials: 'include' })
+    const userData = res.data || res
+
+    if (!userData) {
+      router.push('/auth/login')
+      return
+    }
+
+    admin.name = userData.name || 'Admin'
+    admin.email = userData.email || ''
+    
+    // Hapus spasi atau baris baru jika ada (sering terjadi pada penyimpanan Base64)
+    if (userData.image) {
+      admin.image = userData.image.trim()
+    } else {
+      admin.image = ''
+    }
+    
+  } catch (e) {
+    console.error('Failed to fetch profile', e)
+    router.push('/auth/login')
+  }
+})
+
 </script>
 
 <style scoped>
