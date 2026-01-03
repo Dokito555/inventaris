@@ -7,7 +7,10 @@ import { borrowController } from "./controllers/borrow.controller"
 import { teacherController } from "./controllers/teacher.controller";
 import { getSessionByToken } from "./services/session.service";
 import { errorResponse } from "./utils/response";
+import { whatsappController } from "./controllers/whatsapp.controller"; // ADD
+import { setupCronJobs } from "./cron"; // ADD
 
+setupCronJobs()
 const app = new Elysia({ prefix: '/api'})
     .derive(async ({cookie}) => {
         console.log("cookie: ", cookie?.session?.value)
@@ -25,6 +28,8 @@ const app = new Elysia({ prefix: '/api'})
     .use(borrowController)
     .use(telegramController)
     .use(teacherController)
+    .use(whatsappController) // ADD (di dalam app.use)
+
 
     .onError(({code, error, set}) => {
         console.error(`Backend Error [${code}]:`, error);

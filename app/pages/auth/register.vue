@@ -72,10 +72,19 @@ const handleSubmit = async () => {
     if (response.status === 'success' || response.success) {
       success.value = true
       
-      // ✅ Redirect ke login setelah 2 detik
+      // Tampilkan instruksi untuk pengguna menghubungkan akun mereka dengan bot Telegram
+      error.value = `✅ Registrasi berhasil!
+
+📱 Langkah selanjutnya untuk menerima notifikasi:
+1. Klik link bot: [https://t.me/inventarisprokon.bot](https://t.me/inventarisprokon.bot)
+2. Klik tombol "Start"
+3. Share nomor telepon Anda:
+ ${form.phone_number}`
+
+      // ✅ Redirect ke login setelah 10 detik
       setTimeout(() => {
         router.push('/auth/login')
-      }, 2000)
+      }, 10000)
     } else {
       error.value = response.message || 'Registrasi gagal.'
     }

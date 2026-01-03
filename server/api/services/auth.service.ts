@@ -6,8 +6,10 @@ import {
   validatePhoneNumber,
 } from '../validators/validation'
 import { TelegramService } from "./telegram.service";
+import { WhatsAppService } from "./whatsapp.service";
 
 const telegramService = new TelegramService()
+const whatsappService = new WhatsAppService()
 
 export async function register(
     email: string,
@@ -70,6 +72,14 @@ export async function register(
         console.log('failed to send telegram regustration notification: ', error)
     }
 
+    // ✅ Kirim notifikasi WhatsApp (NEW)
+    try {
+        await whatsappService.notifyRegistration(phoneNumber, name, email)
+        console.log('WhatsApp registration notification sent successfully')
+    } catch(error) {
+        console.error('Failed to send WhatsApp registration notification:', error)
+        // Jangan throw error, biar registrasi tetap berhasil meski notif gagal
+    }
     return user;
 }
 

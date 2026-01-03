@@ -1,0 +1,76 @@
+# services:
+#   waha:
+#     image: devlikeapro/waha:latest
+#     container_name: waha
+#     restart: unless-stopped
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       # WAHA Configuration
+#       - WAHA_PRINT_QR=true
+#       - WAHA_LOG_LEVEL=info
+#       - WAHA_API_KEY=0565c3de021f4d9ebd3de26d782eb208
+#       - WAHA_DASHBOARD_USERNAME=admin
+#       - WAHA_DASHBOARD_PASSWORD=43c7b8d4106c4d038506ec33d3fa6d7a
+      
+#       # Session Configuration
+#       - WHATSAPP_RESTART_ALL_SESSIONS=true
+      
+#       # Webhook Configuration (optional)
+#       # - WHATSAPP_HOOK_URL=http://your-backend-url/api/whatsapp/webhook
+#       # - WHATSAPP_HOOK_EVENTS=message,message.any
+      
+#     volumes:
+#       # Simpan session data agar tidak perlu scan QR berulang kali
+#       - waha_data:/app/.sessions
+    
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+#       start_period: 40s
+
+# volumes:
+#   waha_data:
+#     driver: local
+
+# # Network (optional, jika backend juga pakai Docker)
+# # networks:
+# #   app-network:
+# #     driver: bridge
+
+
+services:
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: waha
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - WAHA_PRINT_QR=true
+      - WAHA_LOG_LEVEL=info
+
+      # FIX: set API key & dashboard creds biar gak berubah tiap restart
+      - WAHA_API_KEY=0565c3de021f4d9ebd3de26d782eb208
+      - WAHA_DASHBOARD_USERNAME=admin
+      - WAHA_DASHBOARD_PASSWORD=43c7b8d4106c4d038506ec33d3fa6d7a
+
+      # Session behavior
+      - WHATSAPP_RESTART_ALL_SESSIONS=true
+
+    volumes:
+      - waha_data:/app/.sessions
+
+    # FIX: healthcheck pakai endpoint yang tidak "Plus-only"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -H \"X-Api-Key: $WAHA_API_KEY\" http://localhost:3000/api/sessions/ > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  waha_data:
+    driver: local
