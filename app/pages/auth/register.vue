@@ -12,6 +12,7 @@ const form = reactive({
   name: '',
   email: '',
   phone_number: '',
+  teleId: '',
   password: '',
   password_confirmation: ''
 })
@@ -63,6 +64,7 @@ const handleSubmit = async () => {
         name: form.name,
         email: form.email,
         phone_number: form.phone_number,
+        teleId: form.teleId?.trim() || undefined,
         password: form.password
       }
     })
@@ -164,7 +166,7 @@ const handleSubmit = async () => {
 
       <!-- Phone -->
       <div style="margin-bottom:1rem;">
-        <label class="auth-form-label">Nomor Telepon (WhatsApp/Telegram)</label>
+        <label class="auth-form-label">Nomor Telepon (WhatsApp)</label>
         <input
           v-model="form.phone_number"
           type="tel"
@@ -176,6 +178,21 @@ const handleSubmit = async () => {
         />
         <p style="font-size:0.75rem;color:#6b7280;margin-top:0.25rem;">
           Format: 08xxxxxxxxxx
+        </p>
+      </div>
+
+      <!-- TeleId -->
+      <div style="margin-bottom:1rem;">
+        <label class="auth-form-label">ID Telegram</label>
+        <input
+          v-model="form.teleId"
+          type="text"
+          class="auth-input"
+          placeholder="Contoh: 123456789"
+          :disabled="loading || success"
+        />
+        <p style="font-size:0.75rem;color:#6b7280;margin-top:0.25rem;">
+          Dapatkan ID Anda melalui <a href="https://t.me/userinfobot" target="_blank" style="color:#264631;text-decoration:underline;">@userinfobot</a>
         </p>
       </div>
 

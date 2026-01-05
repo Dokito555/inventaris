@@ -14,6 +14,6 @@ export function validatePassword(password: string): {
 }
 
 export function validatePhoneNumber(phoneNumber: string): boolean {
-    const idPhoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,10}$/;
+    const idPhoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,11}$/;
     return idPhoneRegex.test(phoneNumber)
 }

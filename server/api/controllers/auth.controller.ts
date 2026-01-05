@@ -26,6 +26,7 @@ export const authController = (app: Elysia) => {
                     body.password,
                     body.name,
                     phoneNumStr,
+                    body.teleId?.trim() || undefined
                 )
 
                 console.log('User registered:', user) // ✅ Debug log
@@ -47,7 +48,7 @@ export const authController = (app: Elysia) => {
                     }
                     
                     // ✅ Handle duplicate phone
-                    if (error.message.includes('phone')) {
+                    if (error.message.includes('phone') || error.message.includes('Unique constraint')) {
                         errorMessage = 'Nomor telepon sudah terdaftar'
                     }
                 }

@@ -15,7 +15,8 @@ export async function register(
     email: string,
     password: string,
     name: string,
-    phoneNumber: string
+    phoneNumber: string,
+    teleId?: string
 ) {
 
     // maybe i should skip service validation since elysia provided validation at controller level
@@ -52,12 +53,14 @@ export async function register(
             password: String(hashedPassword),
             phoneNumber: phoneNumber,
             name,
+            teleId: teleId || null,
         },
         select: {
             id: true,
             email: true,
             name: true,
-            phoneNumber: true
+            phoneNumber: true,
+            teleId: true
         },
     })
 
