@@ -2,8 +2,10 @@ import prisma from "~~/server/db/prisma";
 import { CreateBorrowDTO } from "../models/borrow.model";
 import { BorrowStatus } from "@prisma/client";
 import { WhatsAppService } from "./whatsapp.service";
+import { TelegramService } from "./telegram.service";
 
 const whatsappService = new WhatsAppService()
+const telegramService = new TelegramService()
 
 export async function createBorrow(data: CreateBorrowDTO) {
     console.log("create borrow received: ", data);
@@ -92,6 +94,33 @@ export async function createBorrow(data: CreateBorrowDTO) {
         // Jangan throw error, biar peminjaman tetap berhasil meski notif gagal
     }
 
+    // ✅ Kirim notifikasi Telegram ke SEMUA ADMIN
+    try {
+        const adminChatIds = await telegramService.getAllAdminChatIds()
+        
+        console.log(`Sending borrow notification to ${adminChatIds.length} admins via Telegram`)
+
+        // Hitung sisa stok setelah dipinjam
+        const remainingStock = item.quantity - data.quantity
+
+        for (const chatId of adminChatIds) {
+            await telegramService.notifyNewBorrow(chatId, {
+                teacherName: teacher.name,
+                teacherClass: teacher.class || 'Tidak ada kelas',
+                itemName: item.name,
+                quantityBorrowed: data.quantity,
+                remainingStock: remainingStock,
+                deadline: returnDate,
+                notes: data.notes
+            })
+        }
+
+        console.log('Telegram borrow notifications sent successfully')
+    } catch(error) {
+        console.error('Failed to send Telegram borrow notification:', error)
+        // Jangan throw error, biar peminjaman tetap berhasil meski notif gagal
+    }
+
     return borrow;
 }
 
@@ -172,6 +201,33 @@ export async function returnItem(id: string) {
             console.log('WhatsApp return notifications sent successfully')
         } catch(error) {
             console.error('Failed to send WhatsApp return notification:', error)
+            // Jangan throw error, biar pengembalian tetap berhasil meski notif gagal
+        }
+
+        // ✅ 4. Kirim notifikasi Telegram ke SEMUA ADMIN
+        try {
+            const adminChatIds = await telegramService.getAllAdminChatIds()
+            
+            console.log(`Sending return notification to ${adminChatIds.length} admins via Telegram`)
+
+            // Cek apakah terlambat
+            const isLate = returnTime > borrow.return_date
+
+            for (const chatId of adminChatIds) {
+                await telegramService.notifyReturn(chatId, {
+                    teacherName: borrow.teacher.name,
+                    teacherClass: borrow.teacher.class || 'Tidak ada kelas',
+                    itemName: borrow.item.name,
+                    quantity: borrow.quantity,
+                    borrowedAt: borrow.borrowed_at,
+                    returnedAt: returnTime,
+                    isLate: isLate
+                })
+            }
+
+            console.log('Telegram return notifications sent successfully')
+        } catch(error) {
+            console.error('Failed to send Telegram return notification:', error)
             // Jangan throw error, biar pengembalian tetap berhasil meski notif gagal
         }
 

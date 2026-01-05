@@ -77,7 +77,7 @@ const handleSubmit = async () => {
       // ✅ Redirect ke login setelah 10 detik
       setTimeout(() => {
         router.push('/auth/login')
-      }, 10000)
+      }, 2000)
     } else {
       error.value = response.message || 'Registrasi gagal.'
     }
