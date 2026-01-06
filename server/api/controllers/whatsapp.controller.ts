@@ -59,19 +59,18 @@ export const whatsappController = (app: Elysia) => {
             body: waTestMessage
         })
         
-        // Test koneksi ke WAHA
         .get('/test-connection', async ({set}) => {
             try {
                 const isConnected = await whatsappService.testConnection()
 
                 if (!isConnected) {
                     set.status = 500
-                    return errorResponse('Failed to connect to WAHA')
+                    return errorResponse('Failed to connect to Fonnte')
                 }
 
                 return successResponse(
                     {connected: true}, 
-                    'WAHA connection successful'
+                    'Fonnte connection successful'
                 )
             } catch(error) {
                 console.error('Connection test error:', error)

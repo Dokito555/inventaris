@@ -1,92 +1,98 @@
 import prisma from "~~/server/db/prisma"
 
 export class WhatsAppService {
-    private wahaURL: string
-    private sessionName: string
-    private apiKey: string
-    
+    private apiURL = 'https://api.fonnte.com/send'
+    private apiToken: string
+    private lastSentTime = 0
+    private minDelay = 3000 // 3 detik minimum delay antar pesan
 
     constructor() {
-        this.wahaURL = process.env.WAHA_URL || "http://localhost:3000"
-        this.sessionName = process.env.WAHA_SESSION || "default"
-        this.apiKey = process.env.WAHA_API_KEY || ""
-
-        if (!this.apiKey) {
-            throw new Error("WAHA_API_KEY is missing. Set it in .env")
+        this.apiToken = process.env.FONNTE_TOKEN || ''
+        
+        if (!this.apiToken) {
+            console.warn('⚠️ FONNTE_TOKEN not set. WhatsApp notifications disabled.')
+        } else {
+            console.log('✅ WhatsApp Service initialized (Fonnte)')
         }
-
-        console.log("WhatsApp Service initialized:", {
-        wahaURL: this.wahaURL,
-        sessionName: this.sessionName,
-        hasApiKey: !!this.apiKey
-        })
     }
 
-    private wahaHeaders(extra: Record<string, string> = {}) {
-    return {
-      "X-Api-Key": this.apiKey,          // <-- penting
-      ...extra,
+    /**
+     * Anti-spam delay: tunggu minimal 3 detik sebelum kirim pesan berikutnya
+     */
+    private async waitForDelay() {
+        const now = Date.now()
+        const timeSinceLastSent = now - this.lastSentTime
+        
+        if (timeSinceLastSent < this.minDelay) {
+            const waitTime = this.minDelay - timeSinceLastSent
+            console.log(`⏳ Anti-spam delay: waiting ${waitTime}ms`)
+            await new Promise(resolve => setTimeout(resolve, waitTime))
         }
+        
+        this.lastSentTime = Date.now()
     }
 
     /**
      * Format nomor telepon ke format WhatsApp
-     * Contoh: 08123456789 -> 628123456789@c.us
+     * Contoh: 08123456789 -> 628123456789
      */
-    private formatPhoneNumber(phoneNumber: string): string {
-        // Hapus semua karakter non-digit
-        let cleaned = phoneNumber.replace(/\D/g, '')
+    private formatPhone(phone: string): string {
+        let cleaned = phone.replace(/\D/g, '')
         
-        // Jika diawali 0, ganti dengan 62
         if (cleaned.startsWith('0')) {
             cleaned = '62' + cleaned.substring(1)
-        }
-        
-        // Jika belum ada 62, tambahkan
-        if (!cleaned.startsWith('62')) {
+        } else if (!cleaned.startsWith('62')) {
             cleaned = '62' + cleaned
         }
         
-        // Tambahkan suffix WhatsApp
-        return `${cleaned}@c.us`
+        return cleaned
     }
 
     /**
-     * Kirim pesan WhatsApp
+     * Kirim pesan WhatsApp dengan anti-spam delay
      */
     async sendMessage(phoneNumber: string, message: string): Promise<boolean> {
+        if (!this.apiToken) {
+            console.log('❌ Fonnte token not configured')
+            return false
+        }
+
         try {
-            const chatId = this.formatPhoneNumber(phoneNumber)
+            // Anti-spam delay
+            await this.waitForDelay()
             
-            console.log("Sending WhatsApp message:", {
-                phoneNumber,
-                chatId,
-                messagePreview: message.substring(0, 50)
+            const target = this.formatPhone(phoneNumber)
+            
+            console.log('📤 Sending WhatsApp:', {
+                to: target,
+                preview: message.substring(0, 50) + '...'
             })
 
-            const response = await fetch(`${this.wahaURL}/api/sendText`, {
-                method: "POST",
-                headers: this.wahaHeaders({
-                    "Content-Type": "application/json",
-                }),
+            const response = await fetch(this.apiURL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': this.apiToken,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
-                    session: this.sessionName,
-                    chatId,
-                    text: message,
-                }),
+                    target,
+                    message,
+                    countryCode: '62'
+                })
             })
 
             const data = await response.json()
-
-            if (!response.ok) {
-                console.error("WAHA API error:", data)
+            
+            if (data.status === false) {
+                console.error('❌ Fonnte error:', data)
                 return false
             }
 
-            console.log("WhatsApp message sent successfully:", data)
+            console.log('✅ WhatsApp sent successfully')
             return true
+            
         } catch (error) {
-            console.error("Failed to send WhatsApp message:", error)
+            console.error('❌ Failed to send WhatsApp:', error)
             return false
         }
     }
@@ -95,16 +101,14 @@ export class WhatsAppService {
      * Notifikasi saat admin register
      */
     async notifyRegistration(phoneNumber: string, name: string, email: string): Promise<boolean> {
-        const message = `🎉 *Selamat Datang di Sistem Inventaris!*
+        const message = `🎉 *Registrasi Berhasil!*
 
-Halo *${name}*,
-
-Akun Anda berhasil terdaftar! ✅
+Selamat datang *${name}*!
 
 📧 Email: ${email}
-📱 No. HP: ${phoneNumber}
+✅ Akun Anda telah berhasil terdaftar di Sistem Inventaris.
 
-Anda sekarang dapat mengelola peminjaman barang melalui sistem kami.
+Anda sekarang dapat login dan mengelola peminjaman barang.
 
 Terima kasih! 🙏`
 
@@ -275,32 +279,6 @@ Terima kasih! 🙏`
     }
 
     /**
-     * Test koneksi WAHA
-     */
-    async testConnection(): Promise<boolean> {
-    try {
-        const response = await fetch(`${this.wahaURL}/api/sessions/`, {
-        method: "GET",
-        headers: this.wahaHeaders(),
-        })
-
-        if (!response.ok) {
-        const text = await response.text().catch(() => "")
-        console.error("WAHA connection failed:", response.status, text)
-        return false
-        }
-
-        const sessions = await response.json()
-        console.log("WAHA sessions:", sessions)
-        return true
-    } catch (error) {
-        console.error("Failed to connect to WAHA:", error)
-        return false
-    }
-    }
-
-
-    /**
      * Dapatkan semua admin yang akan menerima notifikasi
      */
     async getAllAdminPhones(): Promise<string[]> {
@@ -316,10 +294,52 @@ Terima kasih! 🙏`
                 }
             })
 
-            return admins.map(admin => admin.phoneNumber).filter(phone => phone !== null) as string[]
+            const phones = admins
+                .map(admin => admin.phoneNumber)
+                .filter(phone => phone !== null) as string[]
+            
+            console.log(`📋 Found ${phones.length} admin phone numbers`)
+            return phones
+            
         } catch (error) {
             console.error("Failed to get admin phones:", error)
             return []
+        }
+    }
+
+    /**
+     * Test koneksi Fonnte
+     */
+    async testConnection(): Promise<boolean> {
+        if (!this.apiToken) {
+            console.error('❌ Fonnte token not configured')
+            return false
+        }
+
+        try {
+            console.log('🔍 Testing Fonnte connection...')
+            
+            const response = await fetch('https://api.fonnte.com/validate', {
+                method: 'POST',
+                headers: {
+                    'Authorization': this.apiToken
+                }
+            })
+
+            const data = await response.json()
+            
+            if (data.status === false) {
+                console.error('❌ Fonnte validation failed:', data)
+                return false
+            }
+
+            console.log('✅ Fonnte connection successful')
+            console.log('📊 Device info:', data)
+            return true
+            
+        } catch (error) {
+            console.error('❌ Failed to connect to Fonnte:', error)
+            return false
         }
     }
 }

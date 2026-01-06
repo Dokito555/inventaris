@@ -183,7 +183,8 @@ const handleSubmit = async () => {
           :disabled="loading || success"
         />
         <p style="font-size:0.75rem;color:#6b7280;margin-top:0.25rem;">
-          Dapatkan ID Anda melalui <a href="https://t.me/userinfobot" target="_blank" style="color:#264631;text-decoration:underline;">@userinfobot</a>
+          1. Chat <a href="https://web.telegram.org/k/#@userinfobot" target="_blank" style="color:#264631;text-decoration:underline;">@userinfobot</a> → START → Copy ID<br>
+          2. Chat bot <a href="https://web.telegram.org/k/#@AlatnotifBot" target="_blank" style="color:#264631;text-decoration:underline;">@invetaris_bot</a> → START (WAJIB!)
         </p>
       </div>
 
