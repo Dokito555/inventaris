@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Pesan {
+  id    Int     @id @default(autoincrement())
+  nama  String
+  teks  String
+}
+
 model Admin {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.VarChar(255)
   name        String    @db.VarChar(255)
