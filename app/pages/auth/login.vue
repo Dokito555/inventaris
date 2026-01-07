@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { useRouter, definePageMeta } from '#imports'
+import { useRouter } from '#imports'
 
 definePageMeta({
   layout: 'auth'
@@ -21,31 +21,51 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
 
+  // Validasi frontend
+  if (!form.email || !form.password) {
+    error.value = 'Email dan password harus diisi.'
+    loading.value = false
+    return
+  }
+
+  if (form.password.length < 8) {
+    error.value = 'Password minimal 8 karakter.'
+    loading.value = false
+    return
+  }
+
   try {
-    const res = await $fetch('/api/auth/login', {
+    const response = await fetch('/api/auth/login', {
       method: 'POST',
-      body: {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         email: form.email,
         password: form.password
-      },
-      credentials: 'include'
+      }),
+      credentials: 'include' // ✅ Penting untuk cookie
     })
 
-    // successful login should return user data
-    if (res && (res.status === 'success' || res.success)) {
-      router.push('/dashboard')
-      return
-    }
+    const data = await response.json()
+    
+    console.log('Login response:', data)
 
-    error.value = res.message || 'Email atau password salah.'
-  } catch (e) {
-    if (e instanceof Error) {
-      error.value = e.message
-    } else if (typeof e === 'object' && e !== null && 'data' in e && e.data && typeof e.data === 'object' && 'message' in e.data && typeof e.data.message === 'string') {
-      error.value = e.data.message
-    } else {
-      error.value = 'Email atau password salah.'
+    if (response.ok) {
+      // Login berhasil
+      if (data.status === 'success' || data.success === true) {
+        router.push('/dashboard')
+        return
+      }
     }
+    
+    // Login gagal - ambil error message
+    // ✅ Cek 'error' dulu, baru 'message' (konsisten dengan register)
+    error.value = data.error || data.message || 'Email atau password salah.'
+
+  } catch (e) {
+    console.error('Login error:', e)
+    error.value = 'Terjadi kesalahan. Silakan coba lagi.'
   } finally {
     loading.value = false
   }
@@ -54,16 +74,23 @@ const handleSubmit = async () => {
 
 <template>
   <div>
-    <!-- Judul -->
-    <h1 style="font-size:2.25rem;font-weight:600;color:#111827;margin-bottom:0.25rem;">
-      Sign in
+    <h1 style="padding-top: 1rem;font-size:2.25rem;font-weight:600;color:#111827;margin-bottom:0.25rem;">
+      Login
     </h1>
     <p style="font-size:0.9rem;color:#4b5563;">
-      Masuk BookingSystem dengan akun yang sudah terdaftar.
+      Masuk ke akun BookingSystem Anda.
     </p>
 
-    <!-- Form -->
-    <form style="margin-top:2rem;" @submit.prevent="handleSubmit">
+    <form style="margin-top:1rem;" @submit.prevent="handleSubmit">
+      <!-- Error Message -->
+      <div
+        v-if="error"
+        style="background:#fee2e2;border:1px solid #ef4444;color:#991b1b;padding:0.75rem;border-radius:0.5rem;margin-bottom:1rem;font-size:0.875rem;"
+      >
+        ⚠️ {{ error }}
+      </div>
+
+      <!-- Email -->
       <div style="margin-bottom:1rem;">
         <label class="auth-form-label">Email</label>
         <input
@@ -73,29 +100,29 @@ const handleSubmit = async () => {
           class="auth-input"
           placeholder="example@gmail.com"
           autocomplete="email"
-          :disabled="loading || success"
+          :disabled="loading"
         />
       </div>
 
-      <div style="margin-bottom:0.2rem;">
+      <!-- Password -->
+      <div style="margin-bottom:1rem;">
         <label class="auth-form-label">Password</label>
-        <div class="auth-password-wrapper">
+        <div style="position:relative;">
           <input
             v-model="form.password"
             :type="showPassword ? 'text' : 'password'"
-            type="password"
             required
             class="auth-input"
             placeholder="********"
-            autocomplete="new-password"
-            :disabled="loading || success"
+            autocomplete="current-password"
+            :disabled="loading"
             style="padding-right:2.5rem;"
           />
           <button
             type="button"
             @click="showPassword = !showPassword"
             style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0.25rem;color:#6b7280;"
-            :disabled="loading || success"
+            :disabled="loading"
           >
             <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
@@ -111,29 +138,23 @@ const handleSubmit = async () => {
         </div>
       </div>
 
+      <!-- Submit Button -->
       <button
         type="submit"
         :disabled="loading"
         class="auth-submit"
+        :style="loading ? 'opacity:0.6;cursor:not-allowed;' : ''"
       >
-        {{ loading ? 'Signing in...' : 'Sign in' }}
+        {{ loading ? 'Login...' : 'Login' }}
       </button>
 
+      <!-- Register Link -->
       <p class="auth-bottom-text">
-        Don’t have an account?
+        Belum punya akun?
         <NuxtLink to="/auth/register" style="color:#264631;font-weight:500;">
-          Sign up here
+          Daftar di sini
         </NuxtLink>
-      </p>
-
-      <p
-        v-if="error"
-        style="font-size:0.85rem;color:#dc2626;text-align:center;margin-top:6px;"
-      >
-        {{ error }}
       </p>
     </form>
   </div>
 </template>
-
-

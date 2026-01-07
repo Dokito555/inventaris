@@ -18,14 +18,13 @@ export async function register(
     phoneNumber: string,
     teleId?: string
 ) {
-
-    // maybe i should skip service validation since elysia provided validation at controller level
+    // Validasi format
     if (!validateEmail(email)) {
-        throw new Error("invalid email format");
+        throw new Error("Format email tidak valid");
     }
 
     if (!validatePhoneNumber(phoneNumber)){
-        throw new Error("invalid phone number format")
+        throw new Error("Format nomor telepon tidak valid")
     }
 
     const passwordValidation = validatePassword(password);
@@ -33,6 +32,7 @@ export async function register(
         throw new Error(passwordValidation.message);
     }
 
+    // ✅ Cek email sudah terdaftar
     const existingUser = await prisma.admin.findFirst({
         where: {
             email: email
@@ -40,50 +40,104 @@ export async function register(
     });
 
     if (existingUser) {
-        if (existingUser.email === email) {
-            throw new Error("email already registered");
+        throw new Error("Email sudah terdaftar");
+    }
+
+    // ✅ Cek nomor telepon sudah terdaftar
+    const existingPhone = await prisma.admin.findFirst({
+        where: {
+            phoneNumber: phoneNumber
+        },
+    });
+
+    if (existingPhone) {
+        throw new Error("Nomor telepon sudah terdaftar");
+    }
+
+    // ✅ Cek telegram ID sudah terdaftar (jika diisi)
+    if (teleId) {
+        const existingTeleId = await prisma.admin.findFirst({
+            where: {
+                teleId: teleId
+            },
+        });
+
+        if (existingTeleId) {
+            throw new Error("ID Telegram sudah terdaftar");
         }
     }
 
     const hashedPassword = await hashPassword(password);
     console.log("DEBUG PRISMA DATA:", { email, name, phoneNumber });
-    const user = await prisma.admin.create({
-        data: {
-            email,
-            password: String(hashedPassword),
-            phoneNumber: phoneNumber,
-            name,
-            teleId: teleId || null,
-        },
-        select: {
-            id: true,
-            email: true,
-            name: true,
-            phoneNumber: true,
-            teleId: true
-        },
-    })
-
+    
+    // ✅ Wrap Prisma create dengan try-catch untuk handle unique constraint error
     try {
-        const chatId = await telegramService.getChatIdByPhone(phoneNumber)
-        if (chatId) {
-            await telegramService.notifyRegistration(chatId, name, email)
-        } else {
-            console.log(`no telegram chat id found for phone: ${phoneNumber}`)
+        const user = await prisma.admin.create({
+            data: {
+                email,
+                password: String(hashedPassword),
+                phoneNumber: phoneNumber,
+                name,
+                teleId: teleId || null,
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phoneNumber: true,
+                teleId: true
+            },
+        })
+
+        // ✅ Kirim notifikasi Telegram
+        try {
+            const chatId = await telegramService.getChatIdByPhone(phoneNumber)
+            if (chatId) {
+                await telegramService.notifyRegistration(chatId, name, email)
+            } else {
+                console.log(`no telegram chat id found for phone: ${phoneNumber}`)
+            }
+        } catch(error) {
+            console.log('failed to send telegram registration notification: ', error)
         }
-    } catch(error) {
-        console.log('failed to send telegram regustration notification: ', error)
-    }
 
-    // ✅ Kirim notifikasi WhatsApp (NEW)
-    try {
-        await whatsappService.notifyRegistration(phoneNumber, name, email)
-        console.log('WhatsApp registration notification sent successfully')
-    } catch(error) {
-        console.error('Failed to send WhatsApp registration notification:', error)
-        // Jangan throw error, biar registrasi tetap berhasil meski notif gagal
+        // ✅ Kirim notifikasi WhatsApp
+        try {
+            await whatsappService.notifyRegistration(phoneNumber, name, email)
+            console.log('WhatsApp registration notification sent successfully')
+        } catch(error) {
+            console.error('Failed to send WhatsApp registration notification:', error)
+        }
+
+        return user;
+        
+    } catch(prismaError: any) {
+        // ✅ Handle Prisma unique constraint errors
+        console.error('Prisma error:', prismaError)
+        
+        if (prismaError.code === 'P2002') {
+            // Unique constraint violation
+            const target = prismaError.meta?.target
+            
+            if (target && Array.isArray(target)) {
+                if (target.includes('email')) {
+                    throw new Error("Email sudah terdaftar")
+                }
+                if (target.includes('phoneNumber')) {
+                    throw new Error("Nomor telepon sudah terdaftar")
+                }
+                if (target.includes('teleId')) {
+                    throw new Error("ID Telegram sudah terdaftar")
+                }
+            }
+            
+            // Fallback jika target tidak terdeteksi
+            throw new Error("Data yang Anda masukkan sudah terdaftar")
+        }
+        
+        // Re-throw error lain
+        throw prismaError
     }
-    return user;
 }
 
 export async function login(email: string, password: string) {
@@ -99,13 +153,13 @@ export async function login(email: string, password: string) {
     })
 
     if (!user) {
-        throw new Error("Invalid credentials");
+        throw new Error("Email atau password salah");
     }
 
     const isValid = await verifyPassword(password, user.password);
 
     if (!isValid) {
-        throw new Error("Invalid credentials");
+        throw new Error("Email atau password salah");
     }
 
     try {
@@ -129,11 +183,11 @@ export async function getUserById(userId: string) {
     const user = await prisma.admin.findUnique({
         where: { id: userId },
         select: {
-        id: true,
-        email: true,
-        name: true,
-        phoneNumber: true,
-        image: true
+            id: true,
+            email: true,
+            name: true,
+            phoneNumber: true,
+            image: true
         },
     });
 
@@ -150,19 +204,37 @@ export async function updateUser(userId: string, data: { name?: string; email?: 
 
     console.log('Updating user with data:', updateData)
 
-    const user = await prisma.admin.update({
-        where: { id: userId },
-        data: updateData,
-        select: {
-            id: true,
-            email: true,
-            name: true,
-            phoneNumber: true,
-            image: true,
+    try {
+        const user = await prisma.admin.update({
+            where: { id: userId },
+            data: updateData,
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phoneNumber: true,
+                image: true,
+            }
+        })
+
+        console.log('Updated user:', user)
+
+        return user
+        
+    } catch(prismaError: any) {
+        // ✅ Handle Prisma unique constraint errors untuk update
+        if (prismaError.code === 'P2002') {
+            const target = prismaError.meta?.target
+            
+            if (target && Array.isArray(target)) {
+                if (target.includes('email')) {
+                    throw new Error("Email sudah digunakan")
+                }
+            }
+            
+            throw new Error("Data sudah digunakan")
         }
-    })
-
-    console.log('Updated user:', user)
-
-    return user
+        
+        throw prismaError
+    }
 }

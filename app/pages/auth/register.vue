@@ -28,7 +28,7 @@ const handleSubmit = async () => {
   error.value = ''
   success.value = false
 
-  // ✅ Validasi form
+  // Validasi form di frontend
   if (!form.name || !form.email || !form.phone_number || !form.password) {
     error.value = 'Semua field harus diisi.'
     loading.value = false
@@ -47,7 +47,7 @@ const handleSubmit = async () => {
     return
   }
 
-  // ✅ Validasi format nomor telepon
+  // Validasi format nomor telepon
   const phoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,11}$/
   if (!phoneRegex.test(form.phone_number)) {
     error.value = 'Format nomor telepon tidak valid. Gunakan format 08xxxxxxxxxx'
@@ -56,46 +56,51 @@ const handleSubmit = async () => {
   }
 
   try {
-    console.log('Sending register request...') // Debug
+    console.log('Sending register request...')
     
-    const response = await $fetch('/api/auth/register', {
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
-      body: {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         name: form.name,
         email: form.email,
         phone_number: form.phone_number,
         teleId: form.teleId?.trim() || undefined,
         password: form.password
-      }
+      })
     })
 
-    console.log('Register response:', response) // Debug
+    const data = await response.json()
+    
+    console.log('Response status:', response.status)
+    console.log('Response data:', data)
+    console.log('Response data.status:', data.status) // ✅ Tambah log ini
+    console.log('Response data.message:', data.message) // ✅ Tambah log ini
+    console.log('Full data structure:', JSON.stringify(data, null, 2)) // ✅ Tambah log ini
 
-    if (response.status === 'success' || response.success) {
-      success.value = true
-
-      // ✅ Redirect ke login setelah 10 detik
-      setTimeout(() => {
-        router.push('/auth/login')
-      }, 2000)
+    // Cek status response
+    if (response.ok) {
+      // Status 2xx (success)
+      if (data.status === 'success') {
+        success.value = true
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
+      } else {
+        error.value = data.message || 'Registrasi gagal.'
+      }
     } else {
-      error.value = response.message || 'Registrasi gagal.'
+      // Status 4xx atau 5xx (error)
+      const errorMsg = data.error || data.message || 'Registrasi gagal.'
+      console.log('Setting error message to:', errorMsg)
+      error.value = errorMsg
     }
 
   } catch (e) {
-    console.error('Register error:', e) // Debug
-    
-    // ✅ Handle berbagai jenis error
-    if (e.data) {
-      // Error dari backend
-      error.value = e.data.message || 'Registrasi gagal.'
-    } else if (e.message) {
-      // Network error
-      error.value = e.message
-    } else {
-      // Unknown error
-      error.value = 'Terjadi kesalahan. Periksa koneksi internet Anda.'
-    }
+    console.error('Register error:', e)
+    error.value = 'Terjadi kesalahan. Silakan coba lagi.'
   } finally {
     loading.value = false
   }
@@ -103,6 +108,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
+  <!-- Template sama seperti sebelumnya -->
   <div>
     <h1 style="padding-top: 1rem;font-size:2.25rem;font-weight:600;color:#111827;margin-bottom:0.25rem;">
       Sign up
@@ -174,7 +180,7 @@ const handleSubmit = async () => {
 
       <!-- TeleId -->
       <div style="margin-bottom:1rem;">
-        <label class="auth-form-label">ID Telegram</label>
+        <label class="auth-form-label">ID Telegram (Opsional)</label>
         <input
           v-model="form.teleId"
           type="text"
@@ -183,8 +189,8 @@ const handleSubmit = async () => {
           :disabled="loading || success"
         />
         <p style="font-size:0.75rem;color:#6b7280;margin-top:0.25rem;">
-          1. Chat <a href="https://web.telegram.org/k/#@userinfobot" target="_blank" style="color:#264631;text-decoration:underline;">@userinfobot</a> → START → Copy ID<br>
-          2. Chat bot <a href="https://web.telegram.org/k/#@AlatnotifBot" target="_blank" style="color:#264631;text-decoration:underline;">@invetaris_bot</a> → START (WAJIB!)
+          1. Chat <a href="https://t.me/userinfobot" target="_blank" style="color:#264631;text-decoration:underline;">@userinfobot</a> → START → Copy ID<br>
+          2. Chat bot <a href="https://t.me/AlatnotifBot" target="_blank" style="color:#264631;text-decoration:underline;">@inventaris_bot</a> → START (WAJIB!)
         </p>
       </div>
 
